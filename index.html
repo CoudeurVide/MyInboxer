@@ -4,15 +4,15 @@
         <!-- Google tag (gtag.js) -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-8JVBKZ3MZ3"></script>
         <script>
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-        
-          gtag('config', 'G-8JVBKZ3MZ3');
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-8JVBKZ3MZ3');
         </script>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>The Inboxer - Stop the Spam Folder</title>
+        <title>MyInboxer.com - The Spam Guardian</title>
         <!-- Google Fonts - Updated to include Mulish (for display font) -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,7 +50,7 @@
                         'float': 'float 6s ease-in-out infinite',
                         'wiggle': 'wiggle 1s ease-in-out infinite',
                         'marquee': 'marquee 20s linear infinite',
-                    },
+                    },        
                     keyframes: {
                         float: {
                             '0%, 100%': { transform: 'translateY(0)' },
@@ -62,7 +62,7 @@
                         },
                         marquee: {
                             '0%': { transform: 'translateX(0%)' },
-                            '100%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(-50%)' },
                         }
                     }
                 }
@@ -72,30 +72,26 @@
         <style>/* Scalloped Edge Pattern using CSS Mask (Original, unused in new divider) */.scalloped-top { mask-image: url("data:image/svg+xml,%3Csvg width='40' height='20' viewBox='0 0 40 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,20 C10,20 10,0 20,0 C30,0 30,20 40,20 L40,40 L0,40 Z' fill='black'/%3E%3C/svg%3E"); mask-size: 40px 20px; mask-repeat: repeat-x; margin-top: -19px; padding-top: 20px; } .scalloped-bottom { mask-image: url("data:image/svg+xml,%3Csvg width='40' height='20' viewBox='0 0 40 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,0 C10,0 10,20 20,20 C30,20 30,0 40,0 L40,-20 L0,-20 Z' fill='black'/%3E%3C/svg%3E"); mask-size: 40px 20px; mask-repeat: repeat-x; mask-position: bottom; padding-bottom: 20px; } .hand-drawn-border { border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px; } .paper-texture { background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E"); } .reveal-on-scroll { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; } .reveal-visible { opacity: 1; transform: translateY(0); }</style>
     </head>
     <body class="bg-paper text-ink font-sans overflow-x-hidden paper-texture">
-        <!-- Navigation (Pill Style) -->
+        <!-- Navigation (Pill Style) - Added Blog link and structured buttons -->
         <nav class="fixed w-full z-50 px-6 py-6 transition-all duration-300">
             <div class="max-w-7xl mx-auto flex justify-between items-center bg-white/80 backdrop-blur-md rounded-full px-6 py-3 border-2 border-ink shadow-solid-sm">
-                <!-- Logo: Using the exact content from the user's latest SVG upload, but with a TIGHTENED viewBox -->
-                <div class="flex items-center">
-                    <!-- Adjusted viewBox from "0 0 198 48" (mm) to pixel-based crop around the content approx "0 0 200 60" based on path coordinates -->
-                    <img src="images/logo.svg" width="200">
-                </div>
-                <!-- Navigation Links/Buttons -->
+                <img src="images/logo.svg" width="200">
                 <div class="hidden md:flex items-center gap-4">
-                    <a href="#" class="font-bold uppercase tracking-wide hover:text-rescue-orange transition-colors">
-                    Blog </a>
-                    <a href="#join" class="bg-ink text-white px-6 py-2 rounded-full font-bold uppercase tracking-wide hover:bg-rescue-orange transition-colors border-2 border-transparent">
+                    <a href="#" class="font-bold uppercase tracking-wide hover:text-rescue-orange transition-colors"> <!-- Added Blog link HERE --> </a>
+                    <a href="#title" class="bg-ink text-white px-6 py-2 rounded-full font-bold uppercase tracking-wide hover:bg-rescue-orange transition-colors border-2 border-transparent">
                     Get Rescued </a>
                 </div>
             </div>
         </nav>
         <!-- Hero Section -->
-        <section class="relative min-h-screen flex flex-col justify-center items-center px-6 pt-32 overflow-hidden">
+        <section class="flex flex-col items-center justify-center min-h-screen overflow-hidden pt-16 px-6 relative">
             <!-- Decorative Elements (Stickers) -->
-            <div class="absolute animate-float hidden left-10 opacity-80 top-40 md:left-32 lg:block">
-                <div class="bg-yellow-300 p-4 rounded-sm shadow-solid rotate-[-6deg] max-w-[150px] text-center font-bold font-display text-sm border-2 border-ink">Stop missing emails!</div>
+            <div class="bg-white border-2 border-ink inline-block mb-10 px-6 py-2 rotate-[-2deg] rounded-full shadow-solid-sm"><span class="font-bold uppercase tracking-widest text-xs">🚀 The Waitlist is Open</span>
             </div>
-            <div class="absolute bottom-32 right-10 md:right-32 animate-float opacity-80 hidden lg:block" style="animation-delay: 1.5s;">
+            <div class="absolute animate-float hidden left-10 opacity-80 top-36 md:left-32 lg:block">
+                <div class="bg-yellow-300 border-2 border-ink font-bold font-display max-w-[150px] p-2 rotate-[-6deg] rounded-sm shadow-solid text-base text-center">Stop missing emails!</div>
+            </div>
+            <div class="absolute animate-float bottom-32 hidden lg:block md:right-32 opacity-80 right-10" style="animation-delay: 1.5s;">
                 <div class="bg-white p-4 rounded-full w-32 h-32 flex items-center justify-center border-2 border-ink shadow-solid rotate-[6deg]">
                     <div class="text-center">
                         <span class="block text-3xl font-black">98%</span>
@@ -103,24 +99,28 @@
                     </div>
                 </div>
             </div>
-            <div class="z-10 text-center max-w-4xl mx-auto relative">
+            <div class="z-10 text-center max-w-4xl mx-auto relative" id="title">
                 <!-- Sunburst Icon behind text -->
                 <div class="absolute -top-20 -right-10 text-rescue-orange opacity-20 text-9xl animate-spin-slow hidden md:block">
                     <i class="fa-solid fa-sun"></i>
                 </div>
-                <div class="inline-block mb-6 px-6 py-2 rounded-full border-2 border-ink bg-white shadow-solid-sm rotate-[-2deg]">
-                    <span class="font-bold uppercase tracking-widest text-xs">🚀 The Waitlist is Open</span>
-                </div>
                 <!-- Title uses the 'font-display' utility, now 'Mulish' -->
-                <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mb-8 reveal-on-scroll text-ink">Your Spam Folder Is&nbsp;a&nbsp;<span class="relative inline-block mt-2"><span class="relative z-10">Goldmine!</span><svg class="absolute bottom-1 left-0 w-full h-4 text-rescue-orange -z-0" viewBox="0 0 100 10" preserveAspectRatio="none">
+                <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mb-8 reveal-on-scroll text-ink">Every Day, Real Customers&apos; Emails Are&nbsp;<span class="relative inline-block mt-2"><span class="relative z-10">Lost In Spam!</span><svg class="absolute bottom-1 left-0 w-full h-4 text-rescue-orange -z-0" viewBox="0 0 100 10" preserveAspectRatio="none">
                             <path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="8" fill="none"></path>
                         </svg> </span></h1>
-                <p class="text-xl text-gray-700 max-w-2xl mx-auto mb-10 leading-relaxed font-medium reveal-on-scroll" style="transition-delay: 100ms;">Don&apos;t let opportunities die in the spam folder.<br>We&nbsp;<span class="bg-yellow-200 px-1">automate</span>&nbsp;emails rescue.</p>
-                <div class="flex flex-col items-center gap-6 reveal-on-scroll" style="transition-delay: 200ms;">
-                    <a href="#join" class="group relative inline-block"> <span class="absolute inset-0 translate-x-1.5 translate-y-1.5 bg-ink rounded-full transition-transform group-hover:translate-x-1 group-hover:translate-y-1"></span> <span class="relative inline-block bg-rescue-orange text-white text-xl font-bold uppercase tracking-wider px-10 py-4 rounded-full border-2 border-ink group-hover:-translate-y-0.5 transition-transform">
-                        Get In Touch </span> </a>
-                    <p class="text-sm font-bold text-gray-500"> <i class="fa-solid fa-check text-green-600 mr-1"></i> No Credit Card Required </p>
+                <p class="font-medium leading-relaxed max-w-2xl mb-12 mx-auto reveal-on-scroll text-gray-700 text-xl" style="transition-delay: 100ms;">Stop losing money and trust to over&#8209;aggressive filters!<br>&nbsp;<b>My Inb</b><b><code class="text-orange-600 font-medium leading-relaxed"><b><span style="font-weight: normal;">o</span></b></code></b><b>xer</b> monitors and&nbsp;<span class="bg-yellow-200 px-1">recovers legitimate customer emails</span>&nbsp;from spam across your entire Google Workspace and Microsoft 365.</p>
+                <!-- NEW HERO FORM -->
+                <div class="w-full max-w-lg mx-auto reveal-on-scroll" style="transition-delay: 200ms;">
+                    <form onsubmit="handleWaitlist(event)" class="flex flex-col md:flex-row gap-4 items-stretch">
+                        <div class="relative flex-grow">
+                            <input type="email" name="email" placeholder="Enter your email" required class="w-full h-full bg-white border-2 border-ink rounded-full px-6 py-4 text-lg font-bold text-ink placeholder-gray-400 focus:outline-none focus:border-rescue-orange transition-colors shadow-solid-sm">
+                        </div>
+                        <button type="submit" class="group relative flex-shrink-0"> <span class="absolute inset-0 translate-x-1.5 translate-y-1.5 bg-ink rounded-full transition-transform group-hover:translate-x-1 group-hover:translate-y-1"></span> <span class="relative inline-block bg-rescue-orange text-white text-xl font-bold uppercase tracking-wider px-8 py-4 rounded-full border-2 border-ink group-hover:-translate-y-0.5 transition-transform" [&.success]:bg-emerald-500 [&.success]:border-emerald-600 success>
+                                Join </span> 
+                        </button>
+                    </form>
                 </div>
+                <!-- END HERO FORM -->
             </div>
             <!-- Bottom Wave -->
             <div class="absolute bottom-0 left-0 w-full leading-none">
@@ -138,33 +138,39 @@
                 <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Fast detection <i class="fa-solid fa-star text-white"></i></span>
                 <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Rescue Revenue <i class="fa-solid fa-star text-white"></i></span>
                 <!-- Set 2 (Duplicate for seamless loop) -->
-                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Outsmart Spam <i class="fa-solid fa-star text-white"></i></span>
+                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">No more lost in Spam <i class="fa-solid fa-star text-white"></i></span>
                 <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Instant rescue <i class="fa-solid fa-star text-white"></i></span>
                 <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Fast detection <i class="fa-solid fa-star text-white"></i></span>
                 <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Rescue Revenue <i class="fa-solid fa-star text-white"></i></span>
             </div>
         </div>
         <!-- Features Grid -->
-        <section class="bg-paper py-32 px-6 relative">
+        <section class="bg-paper pb-20 pt-12 px-6 relative">
             <div class="max-w-7xl mx-auto">
                 <div class="text-center mb-20">
-                    <h2 class="font-display text-4xl md:text-5xl font-black mb-6">Spam Isn&rsquo;t the End...<br>If It Slips,&nbsp;<span class="text-rescue-orange underline decoration-wavy decoration-4">We Catch It!</span></h2>
+                    <h2 class="font-display text-4xl md:text-5xl font-black mb-6">When emails fall through the cracks.<br><span class="text-rescue-orange underline decoration-wavy decoration-4">We pull them back out!</span></h2>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <!-- Card 1: Continuous Monitoring -->
-                    <div class="bg-white border-2 border-ink rounded-2xl p-8 shadow-solid hover:shadow-solid-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-300">
-                        <h3 class="font-bold font-display mb-3 text-2xl text-center">Continuous Monitoring</h3>
-                        <p class="text-gray-600 font-medium">Your spam folder is monitored 24/7 with automated anomaly detection. Legitimate leads are identified with over 90% accuracy.</p>
+                    <!-- Card 1 -->
+                    <div class="reveal-on-scroll">
+                        <div class="bg-white border-2 border-ink rounded-2xl p-8 shadow-solid hover:shadow-solid-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-300">
+                            <h3 class="font-bold font-display mb-3 text-2xl text-center">Save Hours of Checking</h3>
+                            <p class="text-gray-600 font-medium">MyInboxer continuously monitors your spam folder so you never waste time double-checking or digging for missing messages.</p>
+                        </div>
                     </div>
-                    <!-- Card 2: AI Classification Engine -->
-                    <div class="bg-white border-2 border-ink rounded-2xl p-8 shadow-solid hover:shadow-solid-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-300">
-                        <h3 class="font-bold font-display mb-3 text-2xl text-center">AI Classification Engine</h3>
-                        <p class="text-gray-600 font-medium">Our model evaluates message structure, context, sender history, and 300+ linguistic cues to differentiate clients from spam.</p>
+                    <!-- Card 2 -->
+                    <div class="reveal-on-scroll" style="transition-delay: 200ms;">
+                        <div class="bg-white border-2 border-ink rounded-2xl p-8 shadow-solid hover:shadow-solid-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-300">
+                            <h3 class="font-bold font-display mb-3 text-2xl text-center">Spam Filter Gets It Wrong</h3>
+                            <p class="text-gray-600 font-medium">Our AI learns your business language - industry jargon, customer tone, seasonal trends - to detect legitimate inquiries others miss.</p>
+                        </div>
                     </div>
-                    <!-- Card 3: Instant Alert -->
-                    <div class="bg-white border-2 border-ink rounded-2xl p-8 shadow-solid hover:shadow-solid-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-300">
-                        <h3 class="font-bold font-display mb-3 text-2xl text-center">Instant Alert</h3>
-                        <p class="text-gray-600 font-medium">When an important email is discovered, we immediately trigger alerts across SMS, Slack, and push &mdash; ensuring zero downtime in your response pipeline.</p>
+                    <!-- Card 3 -->
+                    <div class="reveal-on-scroll" style="transition-delay: 400ms;">
+                        <div class="bg-white border-2 border-ink rounded-2xl p-8 shadow-solid hover:shadow-solid-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-300">
+                            <h3 class="font-bold font-display mb-3 text-2xl text-center">Protect Your Reputation</h3>
+                            <p class="text-gray-600 font-medium">Missed emails look like poor service. Receive a text, Slack ping, or push notification the moment an important email lands in spam.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -177,43 +183,22 @@
             </svg>
         </div>
         <!-- Contact / CTA Section -->
-        <section id="join" class="bg-ink text-paper py-32 px-6 relative overflow-hidden mt-[-1px]">
-            <div class="max-w-4xl mx-auto relative z-10 text-center">
+        <section id="join" class="bg-ink mt-[-1px] overflow-hidden pb-32 pt-0 px-6 relative text-paper">
+            <div class="max-w-4xl mx-auto relative text-center z-10">
                 <div class="mb-8 flex justify-center">
-                    <div class="inline-block bg-white text-ink font-bold px-6 py-2 rounded-full border-2 border-transparent animate-bounce">
-                        👋 Let's Chat!
 </div>
-                </div>
                 <h2 class="font-display text-4xl md:text-6xl font-black mb-8 leading-tight">
                 Your Place, Your Inbox.<br>Our Place, <span class="text-rescue-orange">The Spam.</span> </h2>
-                <p class="text-gray-400 mb-12 text-lg max-w-xl mx-auto">
-                Stop losing leads to spam. Our AI monitors 24/7 and alerts you the moment it finds one. </p>
-                <div class="bg-paper p-8 md:p-12 rounded-3xl border-2 border-transparent shadow-[10px_10px_0px_0px_rgba(255,255,255,0.1)] max-w-2xl mx-auto text-ink">
-                    <form onsubmit="handleWaitlist(event)" class="space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="text-left">
-                                <label class="font-bold text-sm uppercase mb-2 block">Name *</label>
-                                <input type="text" name="name" class="w-full bg-transparent border-b-2 border-gray-300 focus:border-rescue-orange py-2 outline-none transition-colors font-medium" placeholder="Jane Doe" required>
-                            </div>
-                            <div class="text-left">
-                                <label class="font-bold text-sm uppercase mb-2 block">Email *</label>
-                                <input type="email" name="email" class="w-full bg-transparent border-b-2 border-gray-300 focus:border-rescue-orange py-2 outline-none transition-colors font-medium" placeholder="jane@company.com" required>
-                            </div>
-                        </div>
-                        <button type="submit" class="w-full bg-rescue-orange text-white font-bold uppercase tracking-wider py-4 rounded-full shadow-solid hover:shadow-solid-hover hover:translate-x-[1px] hover:translate-y-[1px] transition-all border-2 border-ink mt-4">
-                            Get Brewing
-</button>
-                    </form>
-                </div>
-                <!-- Wiggling email icon -->
+                <p class="text-gray-400 mb-12 text-lg max-w-xl mx-auto">Stop losing leads to spam. Our AI monitors your mailboxes 24/7 and alerts you the moment it finds one.</p>
+                <!-- Replaced wiggling phone with wiggling email icon -->
                 <div class="mt-20 flex justify-center">
-                    <div class="animate-wiggle text-6xl"><i style="font-size:52px" class="fa">&#xf003;</i>
+                    <div class="animate-wiggle text-6xl"><a href="#title" target="_top"><img src="images/logo-white.svg" width="200"></a>
                     </div>
                 </div>
             </div>
             <!-- Footer -->
             <footer class="absolute bottom-0 w-full p-6 text-center text-gray-500 text-sm">
-                <p>&copy; 2025 The Inboxer. Designed with 🧡 & ☕.</p>
+                <p>&copy; 2025 MyInboxer. Designed with 🧡 &amp; ☕.</p>
             </footer>
         </section>
         <script>
@@ -243,33 +228,38 @@
         async function handleWaitlist(e) {
             e.preventDefault();
             const form = e.target;
-            const btn = form.querySelector('button');
-            const originalText = btn.innerText;
+            const btn = form.querySelector('button[type="submit"]');
 
             // Get form data
-            const nameInput = form.querySelector('input[type="text"]');
-            const emailInput = form.querySelector('input[type="email"]');
-            const name = nameInput.value.trim();
-            const email = emailInput.value.trim();
+       //     const nameInput = form.querySelector('input[name="name"]');
+            const emailInput = form.querySelector('input[name="email"]');
+       //     const name = nameInput?.value?.trim();
+            const email = emailInput?.value?.trim();
 
             // Validate
-            if (!name || !email) {
-                alert('Please fill in all fields');
+                if (!email) {
+                alert('Please fill your email address');
                 return;
             }
 
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+            // Show loading state
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Joining...';
             btn.disabled = true;
 
             try {
-                // Get UTM parameters from URL if present
+                // Get UTM parameters from URL
                 const urlParams = new URLSearchParams(window.location.search);
                 const utmSource = urlParams.get('utm_source');
                 const utmMedium = urlParams.get('utm_medium');
                 const utmCampaign = urlParams.get('utm_campaign');
 
-                // Build payload, only include UTM params if they exist
-                const payload = { name, email };
+                // Build payload - only include values that exist
+            // const payload = { email };
+                const payload = { 
+                    name: "Waitlist User", 
+                    email 
+                };
                 if (utmSource) payload.utmSource = utmSource;
                 if (utmMedium) payload.utmMedium = utmMedium;
                 if (utmCampaign) payload.utmCampaign = utmCampaign;
@@ -287,30 +277,25 @@
                 const data = await response.json();
 
                 if (response.ok) {
+                    // Success
                     btn.innerHTML = 'Welcome Aboard! 🚀';
-                    btn.classList.add('bg-green-500', 'border-green-700');
+                    btn.classList.add('success'); // Add a success class if you want
                     form.reset();
 
-                    setTimeout(() => {
-                        btn.innerText = originalText;
-                        btn.disabled = false;
-                        btn.classList.remove('bg-green-500', 'border-green-700');
-                    }, 3000);
+                    // Optional: Show success message
+                    console.log('✅ Successfully joined waitlist!');
                 } else {
-                    throw new Error(data.error || 'Failed to join waitlist');
+                    // Error from server
+                    alert(data.error || 'Something went wrong. Please try again.');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
                 }
             } catch (error) {
-                console.error('Waitlist error:', error);
-                btn.innerHTML = 'Oops! Try Again';
-                btn.classList.add('bg-red-500', 'border-red-700');
-
-                setTimeout(() => {
-                    btn.innerText = originalText;
-                    btn.disabled = false;
-                    btn.classList.remove('bg-red-500', 'border-red-700');
-                }, 3000);
-
-                alert(error.message || 'Something went wrong. Please try again.');
+                // Network error
+                console.error('Submission error:', error);
+                alert('Network error. Please check your connection and try again.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
         }
     </script>
