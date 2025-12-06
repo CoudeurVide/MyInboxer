@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+    <head>
+        <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-8JVBKZ3MZ3"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-8JVBKZ3MZ3');
+        </script>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MyInboxer.com - Rescue emails from Spam</title>
+        <link rel="icon" type="image/x-icon" href="/images/favicon.svg">
+        <!-- Google Fonts - Updated to include Mulish (for display font) -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@700;800;900&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+        <!-- Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <!-- FontAwesome -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <!-- Firebase SDK (For later implementation) -->
+        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+        <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'paper': '#F9F8F4',
+                        'ink': '#1A1A1A',
+                        'rescue-orange': '#FF5E1A',
+                        'soft-orange': '#FFEDE6',
+                        'sage': '#E3E8E1',
+                        'card-bg': '#FFFFFF',
+                    },
+                    fontFamily: {
+                        //sans: ['Space Grotesk', 'sans-serif'],  OK
+                        // Updated Title font to Mulish
+                        //display: ['Mulish', 'sans-serif'],  OK
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'solid': '6px 6px 0px 0px rgba(0,0,0,1)',
+                        'solid-sm': '3px 3px 0px 0px rgba(0,0,0,1)',
+                        'solid-hover': '2px 2px 0px 0px rgba(0,0,0,1)',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'wiggle': 'wiggle 1s ease-in-out infinite',
+                        'marquee': 'marquee 20s linear infinite',
+                    },        
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15px)' },
+                        },
+                        wiggle: {
+                            '0%, 100%': { transform: 'rotate(-3deg)' },
+                            '50%': { transform: 'rotate(3deg)' },
+                        },
+                        marquee: {
+                            '0%': { transform: 'translateX(0%)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+        <style>/* Scalloped Edge Pattern using CSS Mask (Original, unused in new divider) */.scalloped-top { mask-image: url("data:image/svg+xml,%3Csvg width='40' height='20' viewBox='0 0 40 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,20 C10,20 10,0 20,0 C30,0 30,20 40,20 L40,40 L0,40 Z' fill='black'/%3E%3C/svg%3E"); mask-size: 40px 20px; mask-repeat: repeat-x; margin-top: -19px; padding-top: 20px; } .scalloped-bottom { mask-image: url("data:image/svg+xml,%3Csvg width='40' height='20' viewBox='0 0 40 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,0 C10,0 10,20 20,20 C30,20 30,0 40,0 L40,-20 L0,-20 Z' fill='black'/%3E%3C/svg%3E"); mask-size: 40px 20px; mask-repeat: repeat-x; mask-position: bottom; padding-bottom: 20px; } .hand-drawn-border { border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px; } .paper-texture { background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E"); } .reveal-on-scroll { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; } .reveal-visible { opacity: 1; transform: translateY(0); }</style>
+    </head>
+    <body class="bg-paper text-ink font-sans overflow-x-hidden paper-texture">
+        <!-- Navigation (Pill Style) - Added Blog link and structured buttons -->
+        <nav class="fixed w-full z-50 px-6 py-6 transition-all duration-300">
+            <div class="max-w-7xl mx-auto flex justify-between items-center bg-white/80 backdrop-blur-md rounded-full px-6 py-3 border-2 border-ink shadow-solid-sm">
+                <img src="images/logo.svg" width="200">
+                <div class="hidden md:flex items-center gap-4"><a href="#" class="font-bold uppercase tracking-wide hover:text-rescue-orange transition-colors"> <!-- Added Blog link HERE --> </a><a href="#title" class="bg-ink text-white px-6 py-2 rounded-full font-bold uppercase tracking-wide hover:bg-rescue-orange transition-colors border-2 border-transparent">
+                    Get Rescued </a>
+                </div>
+            </div>
+        </nav>
+        <!-- Hero Section -->
+        <section class="flex flex-col items-center justify-center min-h-screen overflow-hidden pt-16 px-6 relative">
+            <!-- Decorative Elements (Stickers) -->
+            <div class="bg-white border-2 border-ink inline-block mb-10 px-6 py-2 rotate-[-2deg] rounded-full shadow-solid-sm">
+                <span class="font-bold uppercase tracking-widest text-xs">🚀 The Waitlist is Open</span>
+            </div>
+            <div class="absolute animate-float hidden left-10 opacity-80 top-36 md:left-32 lg:block">
+                <div class="bg-yellow-300 border-2 border-ink font-bold font-display max-w-[150px] p-2 rotate-[-6deg] rounded-sm shadow-solid text-base text-center">Stop missing emails!</div>
+            </div>
+            <div class="absolute animate-float bottom-32 hidden lg:block md:right-32 opacity-80 right-10" style="animation-delay: 1.5s;">
+                <div class="bg-white p-4 rounded-full w-32 h-32 flex items-center justify-center border-2 border-ink shadow-solid rotate-[6deg]">
+                    <div class="text-center"><span class="block text-3xl font-black">98%</span><span class="text-xs font-bold uppercase whitespace-nowrap">DETECTION RATE</span>
+                    </div>
+                </div>
+            </div>
+            <div class="z-10 text-center max-w-4xl mx-auto relative" id="title">
+                <!-- Sunburst Icon behind text -->
+                <div class="absolute -top-20 -right-10 text-rescue-orange opacity-20 text-9xl animate-spin-slow hidden md:block"><i class="fa-solid fa-sun"></i>
+                </div>
+                <!-- Title uses the 'font-display' utility, now 'Mulish' -->
+                <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mb-8 reveal-on-scroll text-ink">Every Day, Real Customers&apos; Emails Are&nbsp;<span class="relative inline-block mt-2"><span class="relative z-10">Lost In Spam!</span><svg class="absolute bottom-1 left-0 w-full h-4 text-rescue-orange -z-0" viewBox="0 0 100 10" preserveAspectRatio="none">
+                            <path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="8" fill="none"></path>
+                        </svg> </span></h1>
+                <p class="font-medium leading-relaxed max-w-2xl mb-12 mx-auto reveal-on-scroll text-gray-700 text-xl" style="transition-delay: 100ms;">Stop losing money and trust to over&#8209;aggressive filters!<br>&nbsp;<b>My Inb</b><b><code class="text-orange-600 font-medium leading-relaxed"><b><span style="font-weight: normal;">o</span></b></code></b><b>xer</b> monitors and&nbsp;<span class="bg-yellow-200 px-1">recovers legitimate customer emails</span>&nbsp;from spam across your entire Google Workspace and Microsoft 365.</p>
+                <!-- NEW HERO FORM -->
+                <div class="w-full max-w-lg mx-auto reveal-on-scroll" style="transition-delay: 200ms;">
+                    <form onsubmit="handleWaitlist(event)" class="flex flex-col md:flex-row gap-4 items-stretch">
+                        <div class="relative flex-grow">
+                            <input type="email" name="email" placeholder="Enter your email" required class="w-full h-full bg-white border-2 border-ink rounded-full px-6 py-4 text-lg font-bold text-ink placeholder-gray-400 focus:outline-none focus:border-rescue-orange transition-colors shadow-solid-sm">
+                        </div>
+                        <button type="submit" class="group relative flex-shrink-0"> <span class="absolute inset-0 translate-x-1.5 translate-y-1.5 bg-ink rounded-full transition-transform group-hover:translate-x-1 group-hover:translate-y-1"></span> <span class="relative inline-block bg-rescue-orange text-white text-xl font-bold uppercase tracking-wider px-8 py-4 rounded-full border-2 border-ink group-hover:-translate-y-0.5 transition-transform" [&.success]:bg-emerald-500 [&.success]:border-emerald-600 success>
+                                Join </span> 
+                        </button>
+                    </form>
+                </div>
+                <!-- END HERO FORM -->
+            </div>
+            <!-- Bottom Wave -->
+            <div class="absolute bottom-0 left-0 w-full leading-none">
+                <svg class="block w-full h-[60px] md:h-[100px]" viewBox="0 0 1440 320" preserveAspectRatio="none">
+                    <path fill="#1A1A1A" fill-opacity="1" d="M0,224L60,213.3C120,203,240,181,360,186.7C480,192,600,224,720,218.7C840,213,960,171,1080,160C1200,149,1320,171,1380,181.3L1440,192L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
+                </svg>
+            </div>
+        </section>
+        <!-- Marquee (Yellow) - Content duplicated for seamless loop effect -->
+        <div class="bg-yellow-300 border-y-2 border-ink overflow-hidden py-4 rotate-[-1deg] relative z-20 mt-[-15px]">
+            <div class="animate-marquee whitespace-nowrap flex gap-8">
+                <!-- Set 1 --><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Outsmart Spam <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Instant rescue <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Fast detection <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Rescue Revenue <i class="fa-solid fa-star text-white"></i></span>
+                <!-- Set 2 (Duplicate for seamless loop) --><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">No more lost in Spam <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Instant rescue <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Fast detection <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Rescue Revenue <i class="fa-solid fa-star text-white"></i></span>
+            </div>
+        </div>
+        <!-- Features Grid -->
+        <section class="bg-paper pb-20 pt-12 px-6 relative">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-20">
+                    <h2 class="font-display text-4xl md:text-5xl font-black mb-6">When emails fall through the cracks.<br><span class="text-rescue-orange underline decoration-wavy decoration-4">We pull them back out!</span></h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Card 1 -->
+                    <div class="reveal-on-scroll">
+                        <div class="bg-white border-2 border-ink rounded-2xl p-8 shadow-solid hover:shadow-solid-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-300">
+                            <h3 class="font-bold font-display mb-3 text-2xl text-center">Save Hours of Checking</h3>
+                            <p class="text-gray-600 font-medium">MyInboxer continuously monitors your spam folder so you never waste time double-checking or digging for missing messages.</p>
+                        </div>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="reveal-on-scroll" style="transition-delay: 200ms;">
+                        <div class="bg-white border-2 border-ink rounded-2xl p-8 shadow-solid hover:shadow-solid-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-300">
+                            <h3 class="font-bold font-display mb-3 text-2xl text-center">Spam Filter Gets It Wrong</h3>
+                            <p class="text-gray-600 font-medium">Our AI learns your business language, industry jargon, customer tone, seasonal trends to detect legitimate inquiries others miss.</p>
+                        </div>
+                    </div>
+                    <!-- Card 3 -->
+                    <div class="reveal-on-scroll" style="transition-delay: 400ms;">
+                        <div class="bg-white border-2 border-ink rounded-2xl p-8 shadow-solid hover:shadow-solid-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-300">
+                            <h3 class="font-bold font-display mb-3 text-2xl text-center">Protect Your Reputation</h3>
+                            <p class="text-gray-600 font-medium">Missed emails look like poor service. Receive a text, Slack ping, or push notification the moment an important email lands in spam.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Scalloped Divider -->
+        <div class="relative w-full overflow-hidden leading-none">
+            <svg class="block w-full h-[50px] md:h-[80px] text-ink" viewBox="0 0 1000 100" preserveAspectRatio="none">
+                <!-- This path creates the solid black wave coming up from the bottom -->
+                <path d="M0,100 L0,50 C100,0 250,100 500,50 C750,0 900,100 1000,50 L1000,100 Z" fill="currentColor"></path>
+            </svg>
+        </div>
+        <!-- Contact / CTA Section -->
+        <section id="join" class="bg-ink mt-[-1px] overflow-hidden pb-32 pt-0 px-6 relative text-paper">
+            <div class="max-w-4xl mx-auto relative text-center z-10">
+                <div class="mb-8 flex justify-center">
+</div>
+                <h2 class="font-display text-4xl md:text-6xl font-black mb-8 leading-tight">
+                Your Place, Your Inbox.<br>Our Place, <span class="text-rescue-orange">The Spam.</span> </h2>
+                <p class="text-gray-400 mb-12 text-lg max-w-xl mx-auto">Stop losing leads to spam. Our AI monitors your mailboxes 24/7 and alerts you the moment it finds one.</p>
+                <!-- Replaced wiggling phone with wiggling email icon -->
+                <div class="mt-20 flex justify-center">
+                    <div class="animate-wiggle text-6xl">
+                        <a href="#title" target="_top"><img src="images/logo-white.svg" width="200"></a>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer -->
+            <footer class="absolute bottom-0 w-full p-6 text-center text-gray-500 text-sm">
+                <p>&copy; 2025 MyInboxer. Designed with 🧡 &amp; ☕.</p>
+            </footer>
+        </section>
+        <script>
+        // Scroll Reveal Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('reveal-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+                observer.observe(el);
+            });
+        });
+
+        // Form Handling
+        async function handleWaitlist(e) {
+            e.preventDefault();
+            const form = e.target;
+            const btn = form.querySelector('button[type="submit"]');
+
+            // Get form data
+       //     const nameInput = form.querySelector('input[name="name"]');
+            const emailInput = form.querySelector('input[name="email"]');
+       //     const name = nameInput?.value?.trim();
+            const email = emailInput?.value?.trim();
+
+            // Validate
+                if (!email) {
+                alert('Please fill your email address');
+                return;
+            }
+
+            // Show loading state
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Joining...';
+            btn.disabled = true;
+
+            try {
+                // Get UTM parameters from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const utmSource = urlParams.get('utm_source');
+                const utmMedium = urlParams.get('utm_medium');
+                const utmCampaign = urlParams.get('utm_campaign');
+
+                // Build payload - only include values that exist
+            // const payload = { email };
+                const payload = { 
+                    name: "Waitlist User", 
+                    email 
+                };
+                if (utmSource) payload.utmSource = utmSource;
+                if (utmMedium) payload.utmMedium = utmMedium;
+                if (utmCampaign) payload.utmCampaign = utmCampaign;
+                if (document.referrer) payload.referrer = document.referrer;
+
+                // Submit to backend
+                const response = await fetch('https://backend-liart-five-73.vercel.app/api/waitlist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Success
+                    btn.innerHTML = 'Welcome Aboard! 🚀';
+                    btn.classList.add('success'); // Add a success class if you want
+                    form.reset();
+
+                    // Optional: Show success message
+                    console.log('✅ Successfully joined waitlist!');
+                } else {
+                    // Error from server
+                    alert(data.error || 'Something went wrong. Please try again.');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                // Network error
+                console.error('Submission error:', error);
+                alert('Network error. Please check your connection and try again.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+    </script>
+    </body>
+</html>
