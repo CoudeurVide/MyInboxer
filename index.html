@@ -19,7 +19,8 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@700;800;900&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
         <!-- Tailwind CSS -->
-        <script src="https://cdn.tailwindcss.com"></script>
+       <!--  <script src="https://cdn.tailwindcss.com"></script> -->
+        <link href="https://unpkg.com/tailwindcss@^3/dist/tailwind.min.css" rel="stylesheet">
         <!-- FontAwesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <!-- Firebase SDK (For later implementation) -->
@@ -78,9 +79,7 @@
         <nav class="fixed w-full z-50 px-6 py-6 transition-all duration-300">
             <div class="max-w-7xl mx-auto flex justify-between items-center bg-white/80 backdrop-blur-md rounded-full px-6 py-3 border-2 border-ink shadow-solid-sm">
                 <img src="images/logo.svg" width="200">
-                <div class="hidden md:flex items-center gap-4">
-                    <a href="#" class="font-bold uppercase tracking-wide hover:text-rescue-orange transition-colors"> <!-- Added Blog link HERE --> </a>
-                    <a href="#title" class="bg-ink text-white px-6 py-2 rounded-full font-bold uppercase tracking-wide hover:bg-rescue-orange transition-colors border-2 border-transparent">
+                <div class="hidden md:flex items-center gap-4"><a href="#" class="font-bold uppercase tracking-wide hover:text-rescue-orange transition-colors"> <!-- Added Blog link HERE --> </a><a href="#title" class="bg-ink text-white px-6 py-2 rounded-full font-bold uppercase tracking-wide hover:bg-rescue-orange transition-colors border-2 border-transparent">
                     Get Rescued </a>
                 </div>
             </div>
@@ -88,23 +87,21 @@
         <!-- Hero Section -->
         <section class="flex flex-col items-center justify-center min-h-screen overflow-hidden pt-16 px-6 relative">
             <!-- Decorative Elements (Stickers) -->
-            <div class="bg-white border-2 border-ink inline-block mb-10 px-6 py-2 rotate-[-2deg] rounded-full shadow-solid-sm"><span class="font-bold uppercase tracking-widest text-xs">🚀 The Waitlist is Open</span>
+            <div class="bg-white border-2 border-ink inline-block mb-10 px-6 py-2 rotate-[-2deg] rounded-full shadow-solid-sm">
+                <span class="font-bold uppercase tracking-widest text-xs">🚀 The Waitlist is Open</span>
             </div>
             <div class="absolute animate-float hidden left-10 opacity-80 top-36 md:left-32 lg:block">
                 <div class="bg-yellow-300 border-2 border-ink font-bold font-display max-w-[150px] p-2 rotate-[-6deg] rounded-sm shadow-solid text-base text-center">Stop missing emails!</div>
             </div>
             <div class="absolute animate-float bottom-32 hidden lg:block md:right-32 opacity-80 right-10" style="animation-delay: 1.5s;">
                 <div class="bg-white p-4 rounded-full w-32 h-32 flex items-center justify-center border-2 border-ink shadow-solid rotate-[6deg]">
-                    <div class="text-center">
-                        <span class="block text-3xl font-black">98%</span>
-                        <span class="text-xs font-bold uppercase whitespace-nowrap">DETECTION RATE</span>
+                    <div class="text-center"><span class="block text-3xl font-black">98%</span><span class="text-xs font-bold uppercase whitespace-nowrap">DETECTION RATE</span>
                     </div>
                 </div>
             </div>
             <div class="z-10 text-center max-w-4xl mx-auto relative" id="title">
                 <!-- Sunburst Icon behind text -->
-                <div class="absolute -top-20 -right-10 text-rescue-orange opacity-20 text-9xl animate-spin-slow hidden md:block">
-                    <i class="fa-solid fa-sun"></i>
+                <div class="absolute -top-20 -right-10 text-rescue-orange opacity-20 text-9xl animate-spin-slow hidden md:block"><i class="fa-solid fa-sun"></i>
                 </div>
                 <!-- Title uses the 'font-display' utility, now 'Mulish' -->
                 <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mb-8 reveal-on-scroll text-ink">Every Day, Real Customers&apos; Emails Are&nbsp;<span class="relative inline-block mt-2"><span class="relative z-10">Lost In Spam!</span><svg class="absolute bottom-1 left-0 w-full h-4 text-rescue-orange -z-0" viewBox="0 0 100 10" preserveAspectRatio="none">
@@ -134,16 +131,8 @@
         <!-- Marquee (Yellow) - Content duplicated for seamless loop effect -->
         <div class="bg-yellow-300 border-y-2 border-ink overflow-hidden py-4 rotate-[-1deg] relative z-20 mt-[-15px]">
             <div class="animate-marquee whitespace-nowrap flex gap-8">
-                <!-- Set 1 -->
-                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Outsmart Spam <i class="fa-solid fa-star text-white"></i></span>
-                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Instant rescue <i class="fa-solid fa-star text-white"></i></span>
-                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Fast detection <i class="fa-solid fa-star text-white"></i></span>
-                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Rescue Revenue <i class="fa-solid fa-star text-white"></i></span>
-                <!-- Set 2 (Duplicate for seamless loop) -->
-                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">No more lost in Spam <i class="fa-solid fa-star text-white"></i></span>
-                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Instant rescue <i class="fa-solid fa-star text-white"></i></span>
-                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Fast detection <i class="fa-solid fa-star text-white"></i></span>
-                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Rescue Revenue <i class="fa-solid fa-star text-white"></i></span>
+                <!-- Set 1 --><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Outsmart Spam <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Instant rescue <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Fast detection <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Rescue Revenue <i class="fa-solid fa-star text-white"></i></span>
+                <!-- Set 2 (Duplicate for seamless loop) --><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">No more lost in Spam <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Instant rescue <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Fast detection <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Rescue Revenue <i class="fa-solid fa-star text-white"></i></span>
             </div>
         </div>
         <!-- Features Grid -->
@@ -164,7 +153,7 @@
                     <div class="reveal-on-scroll" style="transition-delay: 200ms;">
                         <div class="bg-white border-2 border-ink rounded-2xl p-8 shadow-solid hover:shadow-solid-hover hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-300">
                             <h3 class="font-bold font-display mb-3 text-2xl text-center">Spam Filter Gets It Wrong</h3>
-                            <p class="text-gray-600 font-medium">Our AI learns your business language - industry jargon, customer tone, seasonal trends - to detect legitimate inquiries others miss.</p>
+                            <p class="text-gray-600 font-medium">Our AI learns your business language, industry jargon, customer tone, seasonal trends to detect legitimate inquiries others miss.</p>
                         </div>
                     </div>
                     <!-- Card 3 -->
@@ -194,7 +183,8 @@
                 <p class="text-gray-400 mb-12 text-lg max-w-xl mx-auto">Stop losing leads to spam. Our AI monitors your mailboxes 24/7 and alerts you the moment it finds one.</p>
                 <!-- Replaced wiggling phone with wiggling email icon -->
                 <div class="mt-20 flex justify-center">
-                    <div class="animate-wiggle text-6xl"><a href="#title" target="_top"><img src="images/logo-white.svg" width="200"></a>
+                    <div class="animate-wiggle text-6xl">
+                        <a href="#title" target="_top"><img src="images/logo-white.svg" width="200"></a>
                     </div>
                 </div>
             </div>
