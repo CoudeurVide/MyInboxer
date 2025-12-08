@@ -2,6 +2,14 @@
 <html lang="en" class="scroll-smooth">
     <head>
         <!-- Google tag (gtag.js) -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-8JVBKZ3MZ3"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-8JVBKZ3MZ3');
+        </script>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>MyInboxer.com - Rescue emails from Spam</title>
@@ -293,7 +301,7 @@
                 if (document.referrer) payload.referrer = document.referrer;
 
                 // Submit to backend
-                const response = await fetch('https://backend/waitlist', {
+                const response = await fetch('https://backend-liart-five-73.vercel.app/api/waitlist', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
