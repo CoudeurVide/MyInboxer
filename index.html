@@ -19,7 +19,9 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@700;800;900&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
         <!-- Tailwind CSS -->
-        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.tailwindcss.com/3.4.0"></script>
+        <!-- Remove the CDN script -->
+        <link href="style.css" rel="stylesheet">
         <!-- FontAwesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <!-- Firebase SDK (For later implementation) -->
@@ -78,7 +80,9 @@
         <nav class="fixed w-full z-50 px-6 py-6 transition-all duration-300">
             <div class="max-w-7xl mx-auto flex justify-between items-center bg-white/80 backdrop-blur-md rounded-full px-6 py-3 border-2 border-ink shadow-solid-sm">
                 <img src="images/logo.svg" width="200">
-                <div class="hidden md:flex items-center gap-4"><a href="#" class="font-bold uppercase tracking-wide hover:text-rescue-orange transition-colors"> <!-- Added Blog link HERE --> </a><a href="#title" class="bg-ink text-white px-6 py-2 rounded-full font-bold uppercase tracking-wide hover:bg-rescue-orange transition-colors border-2 border-transparent">
+                <div class="hidden md:flex items-center gap-4">
+                    <a href="#" class="font-bold uppercase tracking-wide hover:text-rescue-orange transition-colors"> <!-- Added Blog link HERE --> </a>
+                    <a href="#title" class="bg-ink text-white px-6 py-2 rounded-full font-bold uppercase tracking-wide hover:bg-rescue-orange transition-colors border-2 border-transparent">
                     Get Rescued </a>
                 </div>
             </div>
@@ -86,33 +90,41 @@
         <!-- Hero Section -->
         <section class="flex flex-col items-center justify-center min-h-screen overflow-hidden pt-16 px-6 relative">
             <!-- Decorative Elements (Stickers) -->
-            <div class="bg-white border-2 border-ink inline-block mb-10 px-6 py-2 rotate-[-2deg] rounded-full shadow-solid-sm">
-                <span class="font-bold uppercase tracking-widest text-xs">🚀 The Waitlist is Open</span>
+            <div class="bg-white border-2 border-ink inline-block mb-10 px-6 py-2 rotate-[-2deg] rounded-full shadow-solid-sm"><span class="font-bold uppercase tracking-widest text-xs">🚀 The Waitlist is Open</span>
             </div>
             <div class="absolute animate-float hidden left-10 opacity-80 top-36 md:left-32 lg:block">
                 <div class="bg-yellow-300 border-2 border-ink font-bold font-display max-w-[150px] p-2 rotate-[-6deg] rounded-sm shadow-solid text-base text-center">Stop missing emails!</div>
             </div>
             <div class="absolute animate-float bottom-32 hidden lg:block md:right-32 opacity-80 right-10" style="animation-delay: 1.5s;">
                 <div class="bg-white p-4 rounded-full w-32 h-32 flex items-center justify-center border-2 border-ink shadow-solid rotate-[6deg]">
-                    <div class="text-center"><span class="block text-3xl font-black">98%</span><span class="text-xs font-bold uppercase whitespace-nowrap">DETECTION RATE</span>
+                    <div class="text-center">
+                        <span class="block text-3xl font-black">98%</span>
+                        <span class="text-xs font-bold uppercase whitespace-nowrap">DETECTION RATE</span>
                     </div>
                 </div>
             </div>
             <div class="z-10 text-center max-w-4xl mx-auto relative" id="title">
                 <!-- Sunburst Icon behind text -->
-                <div class="absolute -top-20 -right-10 text-rescue-orange opacity-20 text-9xl animate-spin-slow hidden md:block"><i class="fa-solid fa-sun"></i>
+                <div class="absolute -top-20 -right-10 text-rescue-orange opacity-20 text-9xl animate-spin-slow hidden md:block">
+                    <i class="fa-solid fa-sun"></i>
                 </div>
                 <!-- Title uses the 'font-display' utility, now 'Mulish' -->
                 <h1 class="font-display text-5xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mb-8 reveal-on-scroll text-ink">Every Day, Real Customers&apos; Emails Are&nbsp;<span class="relative inline-block mt-2"><span class="relative z-10">Lost In Spam!</span><svg class="absolute bottom-1 left-0 w-full h-4 text-rescue-orange -z-0" viewBox="0 0 100 10" preserveAspectRatio="none">
                             <path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="8" fill="none"></path>
                         </svg> </span></h1>
-                <p class="font-medium leading-relaxed max-w-2xl mb-12 mx-auto reveal-on-scroll text-gray-700 text-xl" style="transition-delay: 100ms;">Stop losing money and trust to over&#8209;aggressive filters!<br>&nbsp;<b>My Inb</b><b><code class="text-orange-600 font-medium leading-relaxed"><b><span style="font-weight: normal;">o</span></b></code></b><b>xer</b> monitors and&nbsp;<span class="bg-yellow-200 px-1">recovers legitimate customer emails</span>&nbsp;from spam across your entire Google Workspace and Microsoft 365.</p>
-                <!-- NEW HERO FORM -->
+                <p class="font-medium leading-relaxed max-w-2xl mb-12 mx-auto reveal-on-scroll text-gray-700 text-xl" style="transition-delay: 100ms;">Stop losing money and trust to over&#8209;aggressive filters!<br>&nbsp;<b>My Inb</b><b><code class="text-orange-600 font-medium leading-relaxed"><b><span style="font-weight: normal;"><span><b>o</b></span></span></b></code></b><b>xer</b> monitors and&nbsp;<span class="bg-yellow-200 px-1">recovers legitimate customer emails</span>&nbsp;from spam across your entire Google Workspace and Microsoft 365.</p>
+                <!-- NEW HERO FORM with Honeypot Field -->
                 <div class="w-full max-w-lg mx-auto reveal-on-scroll" style="transition-delay: 200ms;">
                     <form onsubmit="handleWaitlist(event)" class="flex flex-col md:flex-row gap-4 items-stretch">
+                        <!-- Honeypot Field (invisible to humans) -->
+                        <div class="absolute opacity-0 h-0 overflow-hidden">
+                            <input type="text" name="website" autocomplete="off" tabindex="-1" placeholder="Website" aria-hidden="true" class="hidden">
+                        </div>
+                        <!-- Email Input -->
                         <div class="relative flex-grow">
                             <input type="email" name="email" placeholder="Enter your email" required class="w-full h-full bg-white border-2 border-ink rounded-full px-6 py-4 text-lg font-bold text-ink placeholder-gray-400 focus:outline-none focus:border-rescue-orange transition-colors shadow-solid-sm">
                         </div>
+                        <!-- Submit Button -->
                         <button type="submit" class="group relative flex-shrink-0"> <span class="absolute inset-0 translate-x-1.5 translate-y-1.5 bg-ink rounded-full transition-transform group-hover:translate-x-1 group-hover:translate-y-1"></span> <span class="relative inline-block bg-rescue-orange text-white text-xl font-bold uppercase tracking-wider px-8 py-4 rounded-full border-2 border-ink group-hover:-translate-y-0.5 transition-transform" [&.success]:bg-emerald-500 [&.success]:border-emerald-600 success>
                                 Join </span> 
                         </button>
@@ -130,8 +142,16 @@
         <!-- Marquee (Yellow) - Content duplicated for seamless loop effect -->
         <div class="bg-yellow-300 border-y-2 border-ink overflow-hidden py-4 rotate-[-1deg] relative z-20 mt-[-15px]">
             <div class="animate-marquee whitespace-nowrap flex gap-8">
-                <!-- Set 1 --><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Outsmart Spam <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Instant rescue <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Fast detection <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Rescue Revenue <i class="fa-solid fa-star text-white"></i></span>
-                <!-- Set 2 (Duplicate for seamless loop) --><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">No more lost in Spam <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Instant rescue <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Fast detection <i class="fa-solid fa-star text-white"></i></span><span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Rescue Revenue <i class="fa-solid fa-star text-white"></i></span>
+                <!-- Set 1 -->
+                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Outsmart Spam <i class="fa-solid fa-star text-white"></i></span>
+                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Instant rescue <i class="fa-solid fa-star text-white"></i></span>
+                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Fast detection <i class="fa-solid fa-star text-white"></i></span>
+                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Rescue Revenue <i class="fa-solid fa-star text-white"></i></span>
+                <!-- Set 2 (Duplicate for seamless loop) -->
+                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">No more lost in Spam <i class="fa-solid fa-star text-white"></i></span>
+                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Instant rescue <i class="fa-solid fa-star text-white"></i></span>
+                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Fast detection <i class="fa-solid fa-star text-white"></i></span>
+                <span class="text-2xl font-black uppercase text-ink flex items-center gap-4">Rescue Revenue <i class="fa-solid fa-star text-white"></i></span>
             </div>
         </div>
         <!-- Features Grid -->
@@ -182,8 +202,7 @@
                 <p class="text-gray-400 mb-12 text-lg max-w-xl mx-auto">Stop losing leads to spam. Our AI monitors your mailboxes 24/7 and alerts you the moment it finds one.</p>
                 <!-- Replaced wiggling phone with wiggling email icon -->
                 <div class="mt-20 flex justify-center">
-                    <div class="animate-wiggle text-6xl">
-                        <a href="#title" target="_top"><img src="images/logo-white.svg" width="200"></a>
+                    <div class="animate-wiggle text-6xl"><a href="#title" target="_top"><img src="images/logo-white.svg" width="200"></a>
                     </div>
                 </div>
             </div>
@@ -193,6 +212,9 @@
             </footer>
         </section>
         <script>
+        // Track page load time for time-based bot detection
+        let pageLoadTime = Date.now();
+        
         // Scroll Reveal Logic
         document.addEventListener('DOMContentLoaded', () => {
             const observerOptions = {
@@ -215,20 +237,53 @@
             });
         });
 
-        // Form Handling
+        // Form Handling with Bot Prevention
         async function handleWaitlist(e) {
             e.preventDefault();
             const form = e.target;
             const btn = form.querySelector('button[type="submit"]');
 
+            // ======================
+            // BOT PREVENTION CHECKS
+            // ======================
+            
+            // 1. HONEYPOT FIELD CHECK
+            const honeypot = form.querySelector('input[name="website"]');
+            if (honeypot && honeypot.value.trim() !== '') {
+                console.log('Bot detected via honeypot field');
+                // Silently ignore - don't alert the bot
+                btn.innerHTML = 'Joining...';
+                setTimeout(() => {
+                    btn.innerHTML = 'Join';
+                    btn.disabled = false;
+                }, 1000);
+                return;
+            }
+            
+            // 2. TIME-BASED SUBMISSION CHECK
+            const timeSinceLoad = Date.now() - pageLoadTime;
+            // If submitted in less than 2 seconds, likely a bot
+            if (timeSinceLoad < 2000) {
+                console.log('Submission too fast, likely bot');
+                // Show a generic message that doesn't reveal our detection
+                btn.innerHTML = 'Please wait...';
+                setTimeout(() => {
+                    btn.innerHTML = 'Join';
+                    btn.disabled = false;
+                }, 1500);
+                return;
+            }
+            
+            // ======================
+            // REGULAR FORM HANDLING
+            // ======================
+            
             // Get form data
-       //     const nameInput = form.querySelector('input[name="name"]');
             const emailInput = form.querySelector('input[name="email"]');
-       //     const name = nameInput?.value?.trim();
             const email = emailInput?.value?.trim();
 
             // Validate
-                if (!email) {
+            if (!email) {
                 alert('Please fill your email address');
                 return;
             }
@@ -245,8 +300,7 @@
                 const utmMedium = urlParams.get('utm_medium');
                 const utmCampaign = urlParams.get('utm_campaign');
 
-                // Build payload - only include values that exist
-            // const payload = { email };
+                // Build payload
                 const payload = { 
                     name: "Waitlist User", 
                     email 
@@ -257,10 +311,11 @@
                 if (document.referrer) payload.referrer = document.referrer;
 
                 // Submit to backend
-                const response = await fetch('https://backend-liart-five-73.vercel.app/api/waitlist', {
+                //const response = await fetch('https://backend-liart-five-73.vercel.app/api/waitlist', {
+                const response = await fetch('https://script.google.com/macros/s/AKfycbzQzVx2pmm_WZ07hbkKorUya-xymKFaWa8Obg7pO5x9xrJ8jTmKfcBbCJk0NT1_FUT-vQ/exec', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'text/plain;charset=utf-8',
                     },
                     body: JSON.stringify(payload),
                 });
@@ -270,7 +325,7 @@
                 if (response.ok) {
                     // Success
                     btn.innerHTML = 'Welcome Aboard! 🚀';
-                    btn.classList.add('success'); // Add a success class if you want
+                    btn.classList.add('success');
                     form.reset();
 
                     // Optional: Show success message
@@ -289,6 +344,31 @@
                 btn.disabled = false;
             }
         }
+        
+        // Optional: Additional honeypot enhancement
+        // Some bots might skip fields with "display: none" or "visibility: hidden"
+        // So we use CSS classes instead
+        document.addEventListener('DOMContentLoaded', () => {
+            const style = document.createElement('style');
+            style.textContent = `
+                .honeypot-field {
+                    position: absolute !important;
+                    left: -9999px !important;
+                    width: 1px !important;
+                    height: 1px !important;
+                    overflow: hidden !important;
+                    opacity: 0 !important;
+                    pointer-events: none !important;
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Apply the class to our honeypot field
+            const honeypotField = document.querySelector('input[name="website"]');
+            if (honeypotField) {
+                honeypotField.classList.add('honeypot-field');
+            }
+        });
     </script>
     </body>
 </html>
