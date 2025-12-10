@@ -19,7 +19,9 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Mulish:wght@700;800;900&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
         <!-- Tailwind CSS -->
-        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.tailwindcss.com/3.4.0"></script>
+        <!-- Remove the CDN script -->
+        <link href="style.css" rel="stylesheet">
         <!-- FontAwesome -->
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <!-- Firebase SDK (For later implementation) -->
@@ -112,15 +114,12 @@
                     <form onsubmit="handleWaitlist(event)" class="flex flex-col md:flex-row gap-4 items-stretch">
                         <!-- Honeypot Field (invisible to humans) -->
                         <div class="absolute opacity-0 h-0 overflow-hidden">
-                            <input type="text" name="website" autocomplete="off" tabindex="-1" 
-                                   placeholder="Website" aria-hidden="true" class="hidden">
+                            <input type="text" name="website" autocomplete="off" tabindex="-1" placeholder="Website" aria-hidden="true" class="hidden">
                         </div>
-                        
                         <!-- Email Input -->
                         <div class="relative flex-grow">
                             <input type="email" name="email" placeholder="Enter your email" required class="w-full h-full bg-white border-2 border-ink rounded-full px-6 py-4 text-lg font-bold text-ink placeholder-gray-400 focus:outline-none focus:border-rescue-orange transition-colors shadow-solid-sm">
                         </div>
-                        
                         <!-- Submit Button -->
                         <button type="submit" class="group relative flex-shrink-0"> <span class="absolute inset-0 translate-x-1.5 translate-y-1.5 bg-ink rounded-full transition-transform group-hover:translate-x-1 group-hover:translate-y-1"></span> <span class="relative inline-block bg-rescue-orange text-white text-xl font-bold uppercase tracking-wider px-8 py-4 rounded-full border-2 border-ink group-hover:-translate-y-0.5 transition-transform" [&.success]:bg-emerald-500 [&.success]:border-emerald-600 success>
                                 Join </span> 
@@ -301,10 +300,11 @@
                 if (document.referrer) payload.referrer = document.referrer;
 
                 // Submit to backend
-                const response = await fetch('https://backend-liart-five-73.vercel.app/api/waitlist', {
+                //const response = await fetch('https://backend-liart-five-73.vercel.app/api/waitlist', {
+                const response = await fetch('https://script.google.com/macros/s/AKfycbzQzVx2pmm_WZ07hbkKorUya-xymKFaWa8Obg7pO5x9xrJ8jTmKfcBbCJk0NT1_FUT-vQ/exec', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'text/plain;charset=utf-8',
                     },
                     body: JSON.stringify(payload),
                 });
