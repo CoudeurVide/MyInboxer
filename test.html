@@ -78,259 +78,208 @@
         .reveal-visible { opacity: 1; transform: translateY(0); }
         </style>
         
-        <!-- WAITLIST SCRIPT - ADD THIS IN HEAD -->
-        <script>
-        // Global callback for JSONP responses
-        window.waitlistCallback = function(response) {
-            console.log('Waitlist response:', response);
-            
-            // Find the form and button
-            const form = document.querySelector('form[onsubmit="submitWaitlistForm(event)"]');
-            const btn = form ? form.querySelector('button[type="submit"] span:last-child') : null;
-            const emailInput = form ? form.querySelector('input[type="email"]') : null;
-            
-            if (response.success) {
-                // Success - update UI
-                if (btn) {
-                    btn.textContent = 'Joined! 🚀';
-                    btn.style.backgroundColor = '#10b981'; // Emerald green
-                }
-                if (emailInput) {
-                    emailInput.disabled = true;
-                    emailInput.value = response.message || 'Success!';
-                }
-                
-                // Show success message
-                showWaitlistMessage('🎉 Success! You\'re on the waitlist!', 'success');
-                
-            } else {
-                // Error - reset button
-                if (btn) {
-                    btn.textContent = 'Join';
-                    btn.disabled = false;
-                }
-                
-                // Show error message
-                showWaitlistMessage(response.error || 'Something went wrong. Please try again.', 'error');
-            }
-        };
-        
-        function showWaitlistMessage(message, type) {
-            // Remove any existing message
-            const existingMsg = document.getElementById('waitlist-message');
-            if (existingMsg) existingMsg.remove();
-            
-            // Create new message element
-            const msgDiv = document.createElement('div');
-            msgDiv.id = 'waitlist-message';
-            msgDiv.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                padding: 16px 24px;
-                border-radius: 8px;
-                color: white;
-                font-weight: bold;
-                z-index: 10000;
-                animation: slideIn 0.3s ease-out;
-            `;
-            
-            if (type === 'success') {
-                msgDiv.style.backgroundColor = '#10b981'; // Emerald green
-            } else {
-                msgDiv.style.backgroundColor = '#ef4444'; // Red
-            }
-            
-            msgDiv.textContent = message;
-            
-            document.body.appendChild(msgDiv);
-            
-            // Auto-remove after 5 seconds
-            setTimeout(() => {
-                if (msgDiv.parentNode) {
-                    msgDiv.style.animation = 'slideOut 0.3s ease-out';
-                    setTimeout(() => msgDiv.remove(), 300);
-                }
-            }, 5000);
-        }
-        
-        // Add CSS animations for messages
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
-        
-        // Form submission handler
-        function submitWaitlistForm(event) {
-            event.preventDefault();
-            
-            const form = event.target;
-            const emailInput = form.querySelector('input[type="email"]');
-            const btn = form.querySelector('button[type="submit"] span:last-child');
-            const honeypot = form.querySelector('input[name="website"]');
-            
-            // ============ BOT CHECKS ============
-            // 1. Honeypot check
-            if (honeypot && honeypot.value.trim() !== '') {
-                console.log('Bot detected via honeypot');
-                btn.textContent = 'Join';
-                return;
-            }
-            
-            // 2. Quick submission check
-            const pageLoadTime = window.pageLoadTime || Date.now();
-            if (Date.now() - pageLoadTime < 1000) {
-                console.log('Too fast, likely bot');
-                btn.textContent = 'Join';
-                return;
-            }
-            
-            // ============ VALIDATION ============
-            const email = emailInput.value.trim();
-            
-            if (!email) {
-                showWaitlistMessage('Please enter your email', 'error');
-                return;
-            }
-            
-            // Basic email validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showWaitlistMessage('Please enter a valid email', 'error');
-                return;
-            }
-            
-            // ============ SUBMISSION ============
-            // Update button
-            btn.textContent = 'Joining...';
-            btn.disabled = true;
-            
-            // Get UTM parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            
-            // Build query parameters
-            const params = new URLSearchParams({
-                email: email,
-                pageUrl: window.location.href,
-                referrer: document.referrer || '',
-                userAgent: navigator.userAgent,
-                callback: 'waitlistCallback'
-            });
-            
-            // Add UTMs if present
-            ['utm_source', 'utm_medium', 'utm_campaign'].forEach(utm => {
-                const value = urlParams.get(utm);
-                if (value) params.append(utm.replace('_', ''), value);
-            });
-            
-            // YOUR GOOGLE APPS SCRIPT URL - REPLACE THIS!
-            // Get this from: Deploy → Manage deployments → Copy Web app URL
-            const scriptUrl = 'https://script.google.com/macros/s/AKfycbxqzRQ04CvFvDJvJc2oTBy8T-LomMby88Qqp3zelg1RidJKtgBBnAIer8tmyqLEvl9GTA/exec';
-            
-            // Create script tag for JSONP
-            const scriptId = 'waitlist-jsonp-' + Date.now();
-            
-            // Remove existing script
-            const oldScript = document.getElementById(scriptId);
-            if (oldScript) oldScript.remove();
-            
-            const script = document.createElement('script');
-            script.id = scriptId;
-            script.src = `${scriptUrl}?${params.toString()}`;
-            
-            // Error handling
-            script.onerror = function() {
-                console.error('JSONP request failed');
-                btn.textContent = 'Join';
-                btn.disabled = false;
-                showWaitlistMessage('Network error. Please try again.', 'error');
-                if (document.getElementById(scriptId)) {
-                    document.getElementById(scriptId).remove();
-                }
-            };
-            
-            // Timeout after 10 seconds
-            const timeout = setTimeout(() => {
-                if (btn.disabled) {
-                    console.error('Request timeout');
-                    btn.textContent = 'Join';
-                    btn.disabled = false;
-                    showWaitlistMessage('Request timeout. Please try again.', 'error');
-                    if (document.getElementById(scriptId)) {
-                        document.getElementById(scriptId).remove();
-                    }
-                }
-            }, 10000);
-            
-            // Clear timeout on success
-            script.onload = function() {
-                clearTimeout(timeout);
-            };
-            
-            // Add to page
-            document.body.appendChild(script);
-        }
-        
-        // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set page load time for bot detection
-            window.pageLoadTime = Date.now();
-            
-            // Scroll reveal
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.1
-            };
+	<script>
+	// Global callback for JSONP responses
+	window.waitlistCallback = function(response) {
+	    console.log('Waitlist response:', response);
+	    
+	    const form = document.querySelector('form');
+	    const btnTextSpan = form ? form.querySelector('button[type="submit"] span:last-child') : null;
+	    const emailInput = form ? form.querySelector('input[type="email"]') : null;
+	    
+	    if (response.success) {
+		if (btnTextSpan) {
+		    btnTextSpan.textContent = 'Joined! 🚀';
+		    btnTextSpan.style.backgroundColor = '#10b981';
+		    const submitButton = form.querySelector('button[type="submit"]');
+		    if (submitButton) submitButton.disabled = true;
+		}
+		if (emailInput) emailInput.disabled = true;
+		
+		console.log('✅ Successfully joined waitlist!');
+	    } else {
+		if (btnTextSpan) {
+		    btnTextSpan.textContent = 'Join';
+		    btnTextSpan.style.backgroundColor = '';
+		    const submitButton = form.querySelector('button[type="submit"]');
+		    if (submitButton) submitButton.disabled = false;
+		}
+	    }
+	};
 
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('reveal-visible');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, observerOptions);
+	function showWaitlistMessage(message, type) {
+	    const existingMsg = document.getElementById('waitlist-message');
+	    if (existingMsg) existingMsg.remove();
+	    
+	    const msgDiv = document.createElement('div');
+	    msgDiv.id = 'waitlist-message';
+	    msgDiv.style.cssText = `
+		position: fixed;
+		top: 20px;
+		right: 20px;
+		padding: 16px 24px;
+		border-radius: 8px;
+		color: white;
+		font-weight: bold;
+		z-index: 10000;
+		animation: slideIn 0.3s ease-out;
+	    `;
+	    
+	    msgDiv.style.backgroundColor = type === 'success' ? '#10b981' : '#ef4444';
+	    msgDiv.textContent = message;
+	    
+	    document.body.appendChild(msgDiv);
+	    
+	    setTimeout(() => {
+		if (msgDiv.parentNode) {
+		    msgDiv.style.animation = 'slideOut 0.3s ease-out';
+		    setTimeout(() => msgDiv.remove(), 300);
+		}
+	    }, 5000);
+	}
 
-            document.querySelectorAll('.reveal-on-scroll').forEach(el => {
-                observer.observe(el);
-            });
-            
-            // Update form to use new handler
-            const form = document.querySelector('form');
-            if (form) {
-                form.onsubmit = submitWaitlistForm;
-            }
-            
-            // Honeypot styling
-            const honeypotStyle = document.createElement('style');
-            honeypotStyle.textContent = `
-                .honeypot-field {
-                    position: absolute !important;
-                    left: -9999px !important;
-                    width: 1px !important;
-                    height: 1px !important;
-                    overflow: hidden !important;
-                    opacity: 0 !important;
-                    pointer-events: none !important;
-                }
-            `;
-            document.head.appendChild(honeypotStyle);
-            
-            const honeypotField = document.querySelector('input[name="website"]');
-            if (honeypotField) {
-                honeypotField.classList.add('honeypot-field');
-            }
-        });
-        </script>
+	// Form submission handler
+	function submitWaitlistForm(event) {
+	    event.preventDefault();
+	    
+	    const form = event.target;
+	    const emailInput = form.querySelector('input[type="email"]');
+	    const honeypot = form.querySelector('input[name="website"]');
+	    
+	    // Bot checks
+	    if (honeypot && honeypot.value.trim() !== '') {
+		console.log('Bot detected via honeypot');
+		return;
+	    }
+	    
+	    const pageLoadTime = window.pageLoadTime || Date.now();
+	    if (Date.now() - pageLoadTime < 1000) {
+		console.log('Too fast, likely bot');
+		return;
+	    }
+	    
+	    const email = emailInput.value.trim();
+	    if (!email) {
+		showWaitlistMessage('Please enter your email', 'error');
+		return;
+	    }
+	    
+	    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	    if (!emailRegex.test(email)) {
+		showWaitlistMessage('Please enter a valid email', 'error');
+		return;
+	    }
+	    
+	    // Update button state
+	    const btnTextSpan = form.querySelector('button[type="submit"] span:last-child');
+	    if (btnTextSpan) {
+		btnTextSpan.textContent = 'Joining...';
+	    }
+	    const submitButton = form.querySelector('button[type="submit"]');
+	    if (submitButton) {
+		submitButton.disabled = true;
+	    }
+	    
+	    // Build and send request
+	    const urlParams = new URLSearchParams(window.location.search);
+	    const params = new URLSearchParams({
+		email: email,
+		pageUrl: window.location.href,
+		referrer: document.referrer || '',
+		userAgent: navigator.userAgent,
+		callback: 'waitlistCallback'
+	    });
+	    
+	    ['utm_source', 'utm_medium', 'utm_campaign'].forEach(utm => {
+		const value = urlParams.get(utm);
+		if (value) params.append(utm.replace('_', ''), value);
+	    });
+	    
+	    // Use your actual GAS URL here
+	    const scriptUrl = 'https://script.google.com/macros/s/AKfycbxqzRQ04CvFvDJvJc2oTBy8T-LomMby88Qqp3zelg1RidJKtgBBnAIer8tmyqLEvl9GTA/exec';
+	    const scriptId = 'waitlist-jsonp-' + Date.now();
+	    
+	    const oldScript = document.getElementById(scriptId);
+	    if (oldScript) oldScript.remove();
+	    
+	    const script = document.createElement('script');
+	    script.id = scriptId;
+	    script.src = `${scriptUrl}?${params.toString()}`;
+	    
+	    script.onerror = function() {
+		console.error('JSONP request failed');
+		if (btnTextSpan) btnTextSpan.textContent = 'Join';
+		if (submitButton) submitButton.disabled = false;
+		showWaitlistMessage('Network error. Please try again.', 'error');
+		if (document.getElementById(scriptId)) {
+		    document.getElementById(scriptId).remove();
+		}
+	    };
+	    
+	    const timeout = setTimeout(() => {
+		if (submitButton && submitButton.disabled) {
+		    console.error('Request timeout');
+		    if (btnTextSpan) btnTextSpan.textContent = 'Join';
+		    if (submitButton) submitButton.disabled = false;
+		    showWaitlistMessage('Request timeout. Please try again.', 'error');
+		    if (document.getElementById(scriptId)) {
+		        document.getElementById(scriptId).remove();
+		    }
+		}
+	    }, 10000);
+	    
+	    script.onload = function() {
+		clearTimeout(timeout);
+	    };
+	    
+	    document.body.appendChild(script);
+	}
+
+	// Initialize when page loads
+	document.addEventListener('DOMContentLoaded', function() {
+	    window.pageLoadTime = Date.now();
+	    
+	    // Scroll reveal
+	    const observer = new IntersectionObserver((entries) => {
+		entries.forEach(entry => {
+		    if (entry.isIntersecting) {
+		        entry.target.classList.add('reveal-visible');
+		        observer.unobserve(entry.target);
+		    }
+		});
+	    }, { threshold: 0.1 });
+
+	    document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+		observer.observe(el);
+	    });
+	    
+	    // Update form handler
+	    const form = document.querySelector('form');
+	    if (form) {
+		form.onsubmit = submitWaitlistForm;
+	    }
+	    
+	    // Honeypot styling
+	    const honeypotStyle = document.createElement('style');
+	    honeypotStyle.textContent = `
+		.honeypot-field {
+		    position: absolute !important;
+		    left: -9999px !important;
+		    width: 1px !important;
+		    height: 1px !important;
+		    overflow: hidden !important;
+		    opacity: 0 !important;
+		    pointer-events: none !important;
+		}
+	    `;
+	    document.head.appendChild(honeypotStyle);
+	    
+	    const honeypotField = document.querySelector('input[name="website"]');
+	    if (honeypotField) {
+		honeypotField.classList.add('honeypot-field');
+	    }
+	});
+	</script>
     </head>
     
     <body class="bg-paper text-ink font-sans overflow-x-hidden paper-texture">
