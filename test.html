@@ -79,33 +79,127 @@
         </style>
         
 	<script>
-	// Global callback for JSONP responses
-	window.waitlistCallback = function(response) {
+	// Global callback for waitlist responses
+	window.handleWaitlistResponse = function(response) {
 	    console.log('Waitlist response:', response);
 	    
 	    const form = document.querySelector('form');
 	    const btnTextSpan = form ? form.querySelector('button[type="submit"] span:last-child') : null;
+	    const submitButton = form ? form.querySelector('button[type="submit"]') : null;
 	    const emailInput = form ? form.querySelector('input[type="email"]') : null;
 	    
 	    if (response.success) {
-		if (btnTextSpan) {
-		    btnTextSpan.textContent = 'Joined! 🚀';
-		    btnTextSpan.style.backgroundColor = '#10b981';
-		    const submitButton = form.querySelector('button[type="submit"]');
-		    if (submitButton) submitButton.disabled = true;
-		}
-		if (emailInput) emailInput.disabled = true;
-		
-		console.log('✅ Successfully joined waitlist!');
+	        // Success
+	        if (btnTextSpan) {
+	            btnTextSpan.textContent = 'Joined! 🚀';
+	            btnTextSpan.style.backgroundColor = '#10b981';
+	        }
+	        if (submitButton) submitButton.disabled = true;
+	        if (emailInput) emailInput.disabled = true;
+	        
+	        showWaitlistMessage('🎉 Success! You\'re on the waitlist!', 'success');
+	        
 	    } else {
-		if (btnTextSpan) {
-		    btnTextSpan.textContent = 'Join';
-		    btnTextSpan.style.backgroundColor = '';
-		    const submitButton = form.querySelector('button[type="submit"]');
-		    if (submitButton) submitButton.disabled = false;
-		}
+	        // Error
+	        if (btnTextSpan) {
+	            btnTextSpan.textContent = 'Join';
+	            btnTextSpan.style.backgroundColor = '';
+	        }
+	        if (submitButton) submitButton.disabled = false;
+	        
+	        showWaitlistMessage(response.error || 'Something went wrong. Please try again.', 'error');
 	    }
 	};
+	
+	// Updated form submission handler using Fetch API
+	async function submitWaitlistForm(event) {
+	    event.preventDefault();
+	    
+	    const form = event.target;
+	    const emailInput = form.querySelector('input[type="email"]');
+	    const btnTextSpan = form.querySelector('button[type="submit"] span:last-child');
+	    const submitButton = form.querySelector('button[type="submit"]');
+	    const honeypot = form.querySelector('input[name="website"]');
+	    
+	    // ============ BOT CHECKS ============
+	    if (honeypot && honeypot.value.trim() !== '') {
+	        console.log('Bot detected via honeypot');
+	        return;
+	    }
+	    
+	    const pageLoadTime = window.pageLoadTime || Date.now();
+	    if (Date.now() - pageLoadTime < 1000) {
+	        console.log('Too fast, likely bot');
+	        return;
+	    }
+	    
+	    // ============ VALIDATION ============
+	    const email = emailInput.value.trim();
+	    
+	    if (!email) {
+	        showWaitlistMessage('Please enter your email', 'error');
+	        return;
+	    }
+	    
+	    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+	    if (!emailRegex.test(email)) {
+	        showWaitlistMessage('Please enter a valid email', 'error');
+	        return;
+	    }
+	    
+	    // ============ SUBMISSION ============
+	    // Update button state
+	    if (btnTextSpan) btnTextSpan.textContent = 'Joining...';
+	    if (submitButton) submitButton.disabled = true;
+	    
+	    try {
+	        // Get UTM parameters
+	        const urlParams = new URLSearchParams(window.location.search);
+	        
+	        // Build payload
+	        const payload = {
+	            email: email,
+	            pageUrl: window.location.href,
+	            referrer: document.referrer || '',
+	            userAgent: navigator.userAgent
+	        };
+	        
+	        // Add UTMs if present
+	        ['utm_source', 'utm_medium', 'utm_campaign'].forEach(utm => {
+	            const value = urlParams.get(utm);
+	            if (value) payload[utm.replace('_', '')] = value;
+	        });
+	        
+	        // YOUR GOOGLE APPS SCRIPT URL
+	        const scriptUrl = 'https://script.google.com/macros/s/AKfycbwz1uxs-To1kAKGHOsvLv0OkZjYcVUn6CwKRroCyAP7J3DX2IoGlasRgOqnoUchc7tyQQ/exec';
+	        
+	        // Use fetch with POST
+	        const response = await fetch(scriptUrl, {
+	            method: 'POST',
+	            mode: 'no-cors', // Important for Google Apps Script
+	            headers: {
+	                'Content-Type': 'application/x-www-form-urlencoded',
+	            },
+	            body: new URLSearchParams(payload).toString()
+	        });
+	        
+	        // With 'no-cors' mode, we can't read the response directly
+	        // But the request will still go through
+	        console.log('Request sent successfully');
+	        
+	        // Simulate success for now (we'll fix the GAS side next)
+	        handleWaitlistResponse({
+	            success: true,
+	            message: 'Email saved successfully'
+	        });
+	        
+	    } catch (error) {
+	        console.error('Submission error:', error);
+	        if (btnTextSpan) btnTextSpan.textContent = 'Join';
+	        if (submitButton) submitButton.disabled = false;
+	        showWaitlistMessage('Network error. Please try again.', 'error');
+	    }
+	}
 
 	function showWaitlistMessage(message, type) {
 	    const existingMsg = document.getElementById('waitlist-message');
