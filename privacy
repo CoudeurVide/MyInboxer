@@ -1,0 +1,76 @@
+Privacy Policy — MyInboxer.com
+
+Version: 
+Last Updated: 12/12/2025
+
+1. Overview
+This Privacy Policy explains how MyInboxer.com processes, stores, and protects your personal data when you use our spam-recovery service.
+We follow major data protection laws including GDPR, CPRA, and other global standards.
+
+2. Data We Collect
+A. Information You Provide
+    Account email address
+    Authentication information (OAuth, tokens)
+    Profile preferences and settings
+We do not collect your email password.
+
+B. Data Accessed Through Integrations
+To identify and rescue misclassified emails, MyInboxer accesses:
+    Email metadata (sender, subject)
+    Spam/junk folder labels
+    Message flags (read/unread, importance)
+
+We do not permanently store full email content unless required for troubleshooting and only with your explicit permission.
+C. Automatically Collected Data
+    Device/browser information
+    Usage analytics
+    IP address (for security)
+
+3. How We Use Your Data
+We use your data to:
+    Detect legitimate emails incorrectly marked as spam
+    Improve spam detection algorithms
+    Provide customer support
+    Maintain platform security
+    Fulfill legal obligations
+We never sell your data or email content.
+
+4. Legal Bases (GDPR)
+We process your data on:
+    Contractual necessity (to deliver the Service)
+    Legitimate interest (security, usage analytics)
+    Consent (cookie choices, optional features)
+
+5. Data Sharing
+We only share data with:
+    Essential service providers (cloud hosting, payment processors)
+    Email provider APIs (Google, Microsoft, etc.)
+    Legal authorities when required by law
+We never share or sell email data for advertising.
+
+6. Data Storage & Retention
+    Minimal email metadata is temporarily cached for filtering
+    We do not archive or store full emails
+    Account data is deleted within 30–90 days after account deletion
+    Backups follow a secure rotation schedule
+
+7. Security Measures
+    End-to-end encryption in transit
+    Encrypted storage at rest
+    Strict access controls
+    OAuth-based secure permissions
+
+8. Your Rights
+Depending on your region, you may request:
+    Access to your data
+    Correction or deletion
+    Restriction of processing
+    Export of your data (portability)
+    Withdrawal of consent
+Contact: privacy@myinboxer.com
+
+9. International Transfers
+Data may be processed globally, always under standard contractual clauses (SCCs) and strict protection measures.
+
+10. Changes
+We may update this Privacy Policy periodically.
