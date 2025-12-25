@@ -78,302 +78,201 @@
         .reveal-visible { opacity: 1; transform: translateY(0); }
         </style>
         
-	<script>
-	// Global callback for waitlist responses
-	window.handleWaitlistResponse = function(response) {
-	    console.log('Waitlist response:', response);
-	    
-	    const form = document.querySelector('form');
-	    const btnTextSpan = form ? form.querySelector('button[type="submit"] span:last-child') : null;
-	    const submitButton = form ? form.querySelector('button[type="submit"]') : null;
-	    const emailInput = form ? form.querySelector('input[type="email"]') : null;
-	    
-	    if (response.success) {
-	        // Success
-	        if (btnTextSpan) {
-	            btnTextSpan.textContent = 'Joined! 🚀';
-	            btnTextSpan.style.backgroundColor = '#10b981';
-	        }
-	        if (submitButton) submitButton.disabled = true;
-	        if (emailInput) emailInput.disabled = true;
-	        
-	        showWaitlistMessage('🎉 Success! You\'re on the waitlist!', 'success');
-	        
-	    } else {
-	        // Error
-	        if (btnTextSpan) {
-	            btnTextSpan.textContent = 'Join';
-	            btnTextSpan.style.backgroundColor = '';
-	        }
-	        if (submitButton) submitButton.disabled = false;
-	        
-	        showWaitlistMessage(response.error || 'Something went wrong. Please try again.', 'error');
-	    }
-	};
-	
-	// Updated form submission handler using Fetch API
-	async function submitWaitlistForm(event) {
-	    event.preventDefault();
-	    
-	    const form = event.target;
-	    const emailInput = form.querySelector('input[type="email"]');
-	    const btnTextSpan = form.querySelector('button[type="submit"] span:last-child');
-	    const submitButton = form.querySelector('button[type="submit"]');
-	    const honeypot = form.querySelector('input[name="website"]');
-	    
-	    // ============ BOT CHECKS ============
-	    if (honeypot && honeypot.value.trim() !== '') {
-	        console.log('Bot detected via honeypot');
-	        return;
-	    }
-	    
-	    const pageLoadTime = window.pageLoadTime || Date.now();
-	    if (Date.now() - pageLoadTime < 1000) {
-	        console.log('Too fast, likely bot');
-	        return;
-	    }
-	    
-	    // ============ VALIDATION ============
-	    const email = emailInput.value.trim();
-	    
-	    if (!email) {
-	        showWaitlistMessage('Please enter your email', 'error');
-	        return;
-	    }
-	    
-	    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-	    if (!emailRegex.test(email)) {
-	        showWaitlistMessage('Please enter a valid email', 'error');
-	        return;
-	    }
-	    
-	    // ============ SUBMISSION ============
-	    // Update button state
-	    if (btnTextSpan) btnTextSpan.textContent = 'Joining...';
-	    if (submitButton) submitButton.disabled = true;
-	    
-	    try {
-	        // Get UTM parameters
-	        const urlParams = new URLSearchParams(window.location.search);
-	        
-	        // Build payload
-	        const payload = {
-	            email: email,
-	            pageUrl: window.location.href,
-	            referrer: document.referrer || '',
-	            userAgent: navigator.userAgent
-	        };
-	        
-	        // Add UTMs if present
-	        ['utm_source', 'utm_medium', 'utm_campaign'].forEach(utm => {
-	            const value = urlParams.get(utm);
-	            if (value) payload[utm.replace('_', '')] = value;
-	        });
-	        
-	        // YOUR GOOGLE APPS SCRIPT URL
-	        const scriptUrl = 'https://script.google.com/macros/s/AKfycbwz1uxs-To1kAKGHOsvLv0OkZjYcVUn6CwKRroCyAP7J3DX2IoGlasRgOqnoUchc7tyQQ/exec';
-	        
-	        // Use fetch with POST
-	        const response = await fetch(scriptUrl, {
-	            method: 'POST',
-	            mode: 'no-cors', // Important for Google Apps Script
-	            headers: {
-	                'Content-Type': 'application/x-www-form-urlencoded',
-	            },
-	            body: new URLSearchParams(payload).toString()
-	        });
-	        
-	        // With 'no-cors' mode, we can't read the response directly
-	        // But the request will still go through
-	        console.log('Request sent successfully');
-	        
-	        // Simulate success for now (we'll fix the GAS side next)
-	        handleWaitlistResponse({
-	            success: true,
-	            message: 'Email saved successfully'
-	        });
-	        
-	    } catch (error) {
-	        console.error('Submission error:', error);
-	        if (btnTextSpan) btnTextSpan.textContent = 'Join';
-	        if (submitButton) submitButton.disabled = false;
-	        showWaitlistMessage('Network error. Please try again.', 'error');
-	    }
-	}
+		<!-- WAITLIST SCRIPT - FIXED VERSION -->
+		<script>
+		// Configuration - ONLY CHANGE THIS LINE
+		const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwqYPU_6fSCSFEeHfauzGH2vteFgQ39_ogk6xHAKA5dLcXf2VtPexAmI9efuft4KR3B8A/exec';
 
-	function showWaitlistMessage(message, type) {
-	    const existingMsg = document.getElementById('waitlist-message');
-	    if (existingMsg) existingMsg.remove();
-	    
-	    const msgDiv = document.createElement('div');
-	    msgDiv.id = 'waitlist-message';
-	    msgDiv.style.cssText = `
-		position: fixed;
-		top: 20px;
-		right: 20px;
-		padding: 16px 24px;
-		border-radius: 8px;
-		color: white;
-		font-weight: bold;
-		z-index: 10000;
-		animation: slideIn 0.3s ease-out;
-	    `;
-	    
-	    msgDiv.style.backgroundColor = type === 'success' ? '#10b981' : '#ef4444';
-	    msgDiv.textContent = message;
-	    
-	    document.body.appendChild(msgDiv);
-	    
-	    setTimeout(() => {
-		if (msgDiv.parentNode) {
-		    msgDiv.style.animation = 'slideOut 0.3s ease-out';
-		    setTimeout(() => msgDiv.remove(), 300);
-		}
-	    }, 5000);
-	}
+		// Track page load time
+		let pageLoadTime = Date.now();
 
-	// Form submission handler
-	function submitWaitlistForm(event) {
-	    event.preventDefault();
-	    
-	    const form = event.target;
-	    const emailInput = form.querySelector('input[type="email"]');
-	    const honeypot = form.querySelector('input[name="website"]');
-	    
-	    // Bot checks
-	    if (honeypot && honeypot.value.trim() !== '') {
-		console.log('Bot detected via honeypot');
-		return;
-	    }
-	    
-	    const pageLoadTime = window.pageLoadTime || Date.now();
-	    if (Date.now() - pageLoadTime < 1000) {
-		console.log('Too fast, likely bot');
-		return;
-	    }
-	    
-	    const email = emailInput.value.trim();
-	    if (!email) {
-		showWaitlistMessage('Please enter your email', 'error');
-		return;
-	    }
-	    
-	    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-	    if (!emailRegex.test(email)) {
-		showWaitlistMessage('Please enter a valid email', 'error');
-		return;
-	    }
-	    
-	    // Update button state
-	    const btnTextSpan = form.querySelector('button[type="submit"] span:last-child');
-	    if (btnTextSpan) {
-		btnTextSpan.textContent = 'Joining...';
-	    }
-	    const submitButton = form.querySelector('button[type="submit"]');
-	    if (submitButton) {
-		submitButton.disabled = true;
-	    }
-	    
-	    // Build and send request
-	    const urlParams = new URLSearchParams(window.location.search);
-	    const params = new URLSearchParams({
-		email: email,
-		pageUrl: window.location.href,
-		referrer: document.referrer || '',
-		userAgent: navigator.userAgent,
-		callback: 'waitlistCallback'
-	    });
-	    
-	    ['utm_source', 'utm_medium', 'utm_campaign'].forEach(utm => {
-		const value = urlParams.get(utm);
-		if (value) params.append(utm.replace('_', ''), value);
-	    });
-	    
-	    // Use your actual GAS URL here
-	    const scriptUrl = 'https://script.google.com/macros/s/AKfycbxMSOcvIJdVA3o8-j4XVYw-HOauarmM_VBFx_oCp2KsPsXFsEjlGJxwjFmBXPnaFKaC/exec';
-	    const scriptId = 'waitlist-jsonp-' + Date.now();
-	    
-	    const oldScript = document.getElementById(scriptId);
-	    if (oldScript) oldScript.remove();
-	    
-	    const script = document.createElement('script');
-	    script.id = scriptId;
-	    script.src = `${scriptUrl}?${params.toString()}`;
-	    
-	    script.onerror = function() {
-		console.error('JSONP request failed');
-		if (btnTextSpan) btnTextSpan.textContent = 'Join';
-		if (submitButton) submitButton.disabled = false;
-		showWaitlistMessage('Network error. Please try again.', 'error');
-		if (document.getElementById(scriptId)) {
-		    document.getElementById(scriptId).remove();
+		// Show message to user
+		function showWaitlistMessage(text, type) {
+		    // Remove existing message
+		    const existingMsg = document.getElementById('waitlist-message');
+		    if (existingMsg) existingMsg.remove();
+		    
+		    // Create new message
+		    const msgDiv = document.createElement('div');
+		    msgDiv.id = 'waitlist-message';
+		    msgDiv.textContent = text;
+		    msgDiv.style.cssText = `
+		        position: fixed;
+		        top: 20px;
+		        right: 20px;
+		        padding: 16px 24px;
+		        border-radius: 8px;
+		        color: white;
+		        font-weight: bold;
+		        z-index: 10000;
+		        background-color: ${type === 'success' ? '#10b981' : '#ef4444'};
+		        animation: slideIn 0.3s ease-out;
+		    `;
+		    
+		    document.body.appendChild(msgDiv);
+		    
+		    // Auto-remove after 5 seconds
+		    setTimeout(() => {
+		        if (msgDiv.parentNode) {
+		            msgDiv.style.animation = 'slideOut 0.3s ease-out';
+		            setTimeout(() => msgDiv.remove(), 300);
+		        }
+		    }, 5000);
 		}
-	    };
-	    
-	    const timeout = setTimeout(() => {
-		if (submitButton && submitButton.disabled) {
-		    console.error('Request timeout');
-		    if (btnTextSpan) btnTextSpan.textContent = 'Join';
-		    if (submitButton) submitButton.disabled = false;
-		    showWaitlistMessage('Request timeout. Please try again.', 'error');
-		    if (document.getElementById(scriptId)) {
-		        document.getElementById(scriptId).remove();
+
+		// Form submission handler - SIMPLE IMAGE PIXEL METHOD
+		function submitWaitlistForm(event) {
+		    event.preventDefault();
+		    console.log('Form submitted');
+		    
+		    const form = event.target;
+		    const emailInput = form.querySelector('input[type="email"]');
+		    const button = form.querySelector('button[type="submit"]');
+		    const buttonText = button.querySelector('span:last-child');
+		    const honeypot = form.querySelector('input[name="website"]');
+		    
+		    // ============ BOT CHECKS ============
+		    if (honeypot && honeypot.value.trim() !== '') {
+		        console.log('Bot detected via honeypot');
+		        return;
 		    }
-		}
-	    }, 10000);
-	    
-	    script.onload = function() {
-		clearTimeout(timeout);
-	    };
-	    
-	    document.body.appendChild(script);
-	}
-
-	// Initialize when page loads
-	document.addEventListener('DOMContentLoaded', function() {
-	    window.pageLoadTime = Date.now();
-	    
-	    // Scroll reveal
-	    const observer = new IntersectionObserver((entries) => {
-		entries.forEach(entry => {
-		    if (entry.isIntersecting) {
-		        entry.target.classList.add('reveal-visible');
-		        observer.unobserve(entry.target);
+		    
+		    if (Date.now() - pageLoadTime < 1000) {
+		        console.log('Too fast, likely bot');
+		        return;
 		    }
+		    
+		    // ============ VALIDATION ============
+		    const email = emailInput.value.trim();
+		    
+		    if (!email) {
+		        showWaitlistMessage('Please enter your email', 'error');
+		        return;
+		    }
+		    
+		    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		    if (!emailRegex.test(email)) {
+		        showWaitlistMessage('Please enter a valid email', 'error');
+		        return;
+		    }
+		    
+		    // ============ SUBMISSION ============
+		    // Update UI immediately
+		    if (buttonText) {
+		        buttonText.textContent = 'Joining...';
+		    }
+		    if (button) {
+		        button.disabled = true;
+		    }
+		    
+		    // Build query parameters
+		    const params = new URLSearchParams({
+		        email: email,
+		        pageUrl: window.location.href,
+		        referrer: document.referrer || '',
+		        userAgent: navigator.userAgent
+		    });
+		    
+		    // Add UTM parameters if present
+		    const urlParams = new URLSearchParams(window.location.search);
+		    ['utm_source', 'utm_medium', 'utm_campaign'].forEach(utm => {
+		        const value = urlParams.get(utm);
+		        if (value) params.append(utm.replace('_', ''), value);
+		    });
+		    
+		    // Create full URL
+		    const fullUrl = `${GOOGLE_SCRIPT_URL}?${params.toString()}`;
+		    console.log('Sending to Google Script:', fullUrl);
+		    
+		    // ============ IMAGE PIXEL TECHNIQUE ============
+		    // This bypasses all CORS issues
+		    const pixel = new Image();
+		    pixel.src = fullUrl;
+		    
+		    // Show success after short delay
+		    setTimeout(() => {
+		        // Update UI
+		        if (buttonText) {
+		            buttonText.textContent = 'Joined! 🚀';
+		            buttonText.style.backgroundColor = '#10b981'; // Emerald green
+		        }
+		        if (button) {
+		            button.disabled = true; // Keep disabled
+		        }
+		        if (emailInput) {
+		            emailInput.disabled = true;
+		        }
+		        
+		        // Show success message
+		        showWaitlistMessage('🎉 Success! You\'re on the waitlist!', 'success');
+		        
+		        console.log('Form completed successfully');
+		    }, 800); // Natural delay
+		    
+		    return false;
+		}
+
+		// Initialize when page loads
+		document.addEventListener('DOMContentLoaded', function() {
+		    pageLoadTime = Date.now();
+		    
+		    // Scroll reveal (keep your existing code)
+		    const observerOptions = {
+		        root: null,
+		        rootMargin: '0px',
+		        threshold: 0.1
+		    };
+
+		    const observer = new IntersectionObserver((entries, observer) => {
+		        entries.forEach(entry => {
+		            if (entry.isIntersecting) {
+		                entry.target.classList.add('reveal-visible');
+		                observer.unobserve(entry.target);
+		            }
+		        });
+		    }, observerOptions);
+
+		    document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+		        observer.observe(el);
+		    });
+		    
+		    // Connect form handler
+		    const form = document.querySelector('form');
+		    if (form) {
+		        form.onsubmit = submitWaitlistForm;
+		    }
+		    
+		    // Hide honeypot field
+		    const honeypotField = document.querySelector('input[name="website"]');
+		    if (honeypotField) {
+		        honeypotField.style.cssText = `
+		            position: absolute !important;
+		            left: -9999px !important;
+		            width: 1px !important;
+		            height: 1px !important;
+		            overflow: hidden !important;
+		            opacity: 0 !important;
+		            pointer-events: none !important;
+		        `;
+		    }
+		    
+		    console.log('Page initialized and ready');
 		});
-	    }, { threshold: 0.1 });
 
-	    document.querySelectorAll('.reveal-on-scroll').forEach(el => {
-		observer.observe(el);
-	    });
-	    
-	    // Update form handler
-	    const form = document.querySelector('form');
-	    if (form) {
-		form.onsubmit = submitWaitlistForm;
-	    }
-	    
-	    // Honeypot styling
-	    const honeypotStyle = document.createElement('style');
-	    honeypotStyle.textContent = `
-		.honeypot-field {
-		    position: absolute !important;
-		    left: -9999px !important;
-		    width: 1px !important;
-		    height: 1px !important;
-		    overflow: hidden !important;
-		    opacity: 0 !important;
-		    pointer-events: none !important;
-		}
-	    `;
-	    document.head.appendChild(honeypotStyle);
-	    
-	    const honeypotField = document.querySelector('input[name="website"]');
-	    if (honeypotField) {
-		honeypotField.classList.add('honeypot-field');
-	    }
-	});
-	</script>
+		// Add CSS animations for messages
+		const style = document.createElement('style');
+		style.textContent = `
+		    @keyframes slideIn {
+		        from { transform: translateX(100%); opacity: 0; }
+		        to { transform: translateX(0); opacity: 1; }
+		    }
+		    @keyframes slideOut {
+		        from { transform: translateX(0); opacity: 1; }
+		        to { transform: translateX(100%); opacity: 0; }
+		    }
+		`;
+		document.head.appendChild(style);
+		</script>
     </head>
     
     <body class="bg-paper text-ink font-sans overflow-x-hidden paper-texture">
