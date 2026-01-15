@@ -1,0 +1,31 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://myinboxer.com/sitemap.xml
+
+# GitHub Pages specific - allow crawling
+User-agent: *
+Disallow: /_config.yml
+Disallow: /_layouts/
+Disallow: /_includes/
+Disallow: /_posts/
+Disallow: /_data/
+Disallow: /_sass/
+Disallow: /_site/
+Disallow: /node_modules/
+Disallow: /vendor/
+Disallow: /.git/
+Disallow: /.github/
+Disallow: /Gemfile
+Disallow: /Gemfile.lock
+
+# Allow all user agents for main site
+User-agent: *
+Allow: /css/
+Allow: /js/
+Allow: /images/
+Allow: /fonts/
+
+# Crawl-delay (optional - adjust if needed)
+# Crawl-delay: 2
