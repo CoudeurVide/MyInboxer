@@ -1,0 +1,10 @@
+# Redirect index.html to root
+/index.html    /    301
+/index.htm     /    301
+/index.php     /    301
+
+# Remove trailing slash from root
+/    https://myinboxer.com    301
+/INDEX.html    https://myinboxer.com    301
+/Index.html    https://myinboxer.com    301
+
