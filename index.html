@@ -19,25 +19,6 @@
 	    <!-- Meta Description (for homepage) -->
 		<meta name="description" content="MyInboxer uses AI to rescue legitimate business emails lost in spam, ensuring you never miss real leads due to aggressive email spam filters">
 	    
-	    <!-- GitHub Pages Index Redirect (client-side fallback) -->
-	    <script>
-	    // Self-executing function for index page canonicalization
-	    (function() {
-	        // Only run on index.html or with trailing slash
-	        var path = window.location.pathname.toLowerCase();
-	        var isIndexPage = path === '/index.html' || 
-	                         path === '/index.htm' || 
-	                         path === '/index.php' ||
-	                         path === '/';
-	        
-	        var isCanonical = window.location.href === 'https://myinboxer.com';
-	        
-	        if (isIndexPage && !isCanonical) {
-	            // Use replace instead of assign to prevent back button issues
-	            window.location.replace('https://myinboxer.com');
-	        }
-	    })();
-	    </script>
         <title>MyInboxer.com - Rescue emails from Spam</title>
         <link rel="icon" type="image/x-icon" href="/images/favicon.svg">
         <!-- Google Fonts -->
