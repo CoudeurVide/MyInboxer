@@ -1,0 +1,1050 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+model User {
+  id                        String                    @id @default(uuid()) @db.Uuid
+  email                     String                    @unique
+  password_hash             String
+  role                      Role                      @default(member)
+  mfa_enabled               Boolean                   @default(false)
+  mfa_secret                String?
+  mfa_verified_at           DateTime?
+  created_at                DateTime                  @default(now())
+  updated_at                DateTime                  @updatedAt
+  name                      String?
+  phone                     String?
+  phone_verified            Boolean                   @default(false)
+  slack_webhook_url         String?
+  telegram_chat_id          String?
+  last_login_at             DateTime?
+  email_verified            Boolean                   @default(false)
+  email_verified_at         DateTime?
+  onboarding_completed      Boolean?                  @default(false)
+  plan_selected             Boolean                   @default(false)
+  admin_actions_performed   AdminAction[]             @relation("AdminActions")
+  audit_logs                AuditLog[]
+  classification_settings   ClassificationSettings?
+  custom_lists              CustomList[]
+  data_quality_reviews      DataQualityIssue[]
+  feedback                  Feedback[]
+  mailboxes                 Mailbox[]
+  ml_training_jobs          MLTrainingJob[]
+  model_metrics             ModelMetrics[]
+  notification_preferences  NotificationPreferences?
+  personalization_profiles  personalization_profiles?
+  phishing_reports          PhishingReport[]
+  verified_phishing_reports PhishingReport[]          @relation("PhishingReportVerifier")
+  sender_reputations        SenderReputation[]
+  subscription              Subscription?
+  tags                      Tag[]
+  training_examples         TrainingExample[]
+  usage_tracking            UsageTracking[]
+  user_context              UserContext?
+  user_preferences          UserPreferences?
+  webhooks                  Webhook[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model Mailbox {
+  id                        String        @id @default(uuid()) @db.Uuid
+  user_id                   String        @db.Uuid
+  provider                  EmailProvider
+  email_address             String
+  access_token_encrypted    String
+  refresh_token_encrypted   String
+  tokens_updated_at         DateTime
+  imap_config               Json? // IMAP-only: { host, port, secure } — null for gmail/outlook
+  status                    MailboxStatus @default(active)
+  last_scan_at              DateTime?
+  notification_enabled      Boolean       @default(true)
+  auto_whitelist_enabled    Boolean       @default(true)
+  created_at                DateTime      @default(now())
+  updated_at                DateTime      @updatedAt
+  scan_schedule             String?
+  notification_channels     String[]      @default(["email"])
+  monitored_folders         String[]      @default(["spam"])
+  auto_move_on_classify     Boolean       @default(false)
+  consecutive_scan_failures Int           @default(0)
+  last_scan_error           String?
+  token_expires_at          DateTime?
+  alerts                    Alert[]
+  user                      User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  messages                  Message[]
+
+  @@unique([user_id, email_address])
+  @@index([user_id])
+  @@index([status])
+  @@index([scan_schedule, status])
+  @@index([last_scan_at])
+  @@map("mailboxes")
+}
+
+model Message {
+  id                    String            @id @default(uuid()) @db.Uuid
+  mailbox_id            String            @db.Uuid
+  provider_message_id   String
+  subject               String
+  sender_email          String
+  sender_name           String?
+  recipient_email       String
+  body_text             String
+  body_html             String?
+  verdict               MessageVerdict
+  priority              MessagePriority
+  confidence_score      Float
+  classification_reason String
+  user_verdict          MessageVerdict?
+  reviewed_at           DateTime?
+  received_at           DateTime
+  created_at            DateTime          @default(now())
+  tags                   Json?             @default("{}")
+  unsubscribe_url        String?
+  removed_from_server_at DateTime?         // Set when message is no longer found in monitored folder
+  message_tags           MessageTag[]
+  mailbox                Mailbox           @relation(fields: [mailbox_id], references: [id], onDelete: Cascade)
+  training_examples      TrainingExample[]
+
+  @@unique([mailbox_id, provider_message_id])
+  @@index([mailbox_id, verdict])
+  @@index([mailbox_id, reviewed_at])
+  @@index([mailbox_id, received_at])
+  @@index([mailbox_id, removed_from_server_at])
+  @@index([sender_email])
+  @@index([verdict, received_at])
+  @@index([received_at])
+  @@index([user_verdict])
+  @@index([mailbox_id, user_verdict])
+  @@map("messages")
+}
+
+model Alert {
+  id         String       @id @default(uuid()) @db.Uuid
+  mailbox_id String       @db.Uuid
+  type       AlertType
+  channel    AlertChannel
+  status     AlertStatus  @default(pending)
+  payload    Json
+  sent_at    DateTime?
+  created_at DateTime     @default(now())
+  mailbox    Mailbox      @relation(fields: [mailbox_id], references: [id], onDelete: Cascade)
+
+  @@index([status, created_at])
+  @@map("alerts")
+}
+
+model Webhook {
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String   @db.Uuid
+  url        String
+  secret     String
+  events     String[]
+  enabled    Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, enabled])
+  @@map("webhooks")
+}
+
+model SubscriptionPlanConfig {
+  id                              String         @id @default(uuid()) @db.Uuid
+  name                            String         @unique
+  display_name                    String
+  description                     String?
+  price_monthly                   Int
+  price_yearly                    Int?
+  stripe_price_id_monthly         String?
+  stripe_price_id_yearly          String?
+  is_active                       Boolean        @default(true)
+  sort_order                      Int            @default(0)
+  created_at                      DateTime       @default(now())
+  updated_at                      DateTime       @updatedAt
+  lemonsqueezy_variant_id_monthly String?
+  lemonsqueezy_variant_id_yearly  String?
+  features                        PlanFeature[]
+  subscriptions                   Subscription[]
+
+  @@map("subscription_plan_configs")
+}
+
+model PlanFeature {
+  id            String                 @id @default(uuid()) @db.Uuid
+  plan_id       String                 @db.Uuid
+  feature_key   String
+  feature_value String
+  feature_type  String
+  created_at    DateTime               @default(now())
+  plan          SubscriptionPlanConfig @relation(fields: [plan_id], references: [id], onDelete: Cascade)
+
+  @@unique([plan_id, feature_key])
+  @@index([plan_id])
+  @@map("plan_features")
+}
+
+model Subscription {
+  id                             String                  @id @default(uuid()) @db.Uuid
+  user_id                        String                  @unique @db.Uuid
+  plan                           SubscriptionPlan        @default(free)
+  status                         SubscriptionStatus      @default(trialing)
+  current_period_start           DateTime
+  current_period_end             DateTime
+  cancel_at                      DateTime?
+  created_at                     DateTime                @default(now())
+  updated_at                     DateTime                @updatedAt
+  stripe_customer_id             String?                 @unique
+  stripe_subscription_id         String?                 @unique
+  stripe_price_id                String?
+  billing_cycle                  String?
+  trial_start                    DateTime?
+  trial_end                      DateTime?
+  canceled_at                    DateTime?
+  payment_method_last4           String?
+  payment_method_brand           String?
+  plan_config_id                 String?                 @db.Uuid
+  payment_provider               PaymentProvider?        @default(stripe)
+  provider_customer_id           String?
+  provider_subscription_id       String?
+  provider_price_id              String?
+  trial_expiration_email_sent_at DateTime?
+  plan_config                    SubscriptionPlanConfig? @relation(fields: [plan_config_id], references: [id])
+  user                           User                    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  usage_tracking                 UsageTracking[]
+
+  @@index([plan_config_id])
+  @@index([payment_provider, provider_customer_id])
+  @@index([payment_provider, provider_subscription_id])
+  @@map("subscriptions")
+}
+
+model UsageTracking {
+  id                 String       @id @default(uuid()) @db.Uuid
+  user_id            String       @db.Uuid
+  subscription_id    String       @db.Uuid
+  period_start       DateTime
+  period_end         DateTime
+  mailboxes_count    Int          @default(0)
+  messages_scanned   Int          @default(0)
+  ai_classifications Int          @default(0)
+  api_calls          Int          @default(0)
+  storage_used_mb    Int          @default(0)
+  last_updated       DateTime     @updatedAt
+  created_at         DateTime     @default(now())
+  subscription       Subscription @relation(fields: [subscription_id], references: [id], onDelete: Cascade)
+  user               User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, period_start])
+  @@index([user_id])
+  @@index([subscription_id])
+  @@map("usage_tracking")
+}
+
+model StripeEvent {
+  id              String    @id @default(uuid()) @db.Uuid
+  stripe_event_id String    @unique
+  event_type      String
+  processed       Boolean   @default(false)
+  payload         Json
+  processed_at    DateTime?
+  error           String?
+  created_at      DateTime  @default(now())
+
+  @@index([stripe_event_id])
+  @@index([processed])
+  @@map("stripe_events")
+}
+
+model PaymentProviderEvent {
+  id                String          @id @default(uuid()) @db.Uuid
+  provider          PaymentProvider
+  provider_event_id String
+  event_type        String
+  processed         Boolean         @default(false)
+  payload           Json
+  processed_at      DateTime?
+  error             String?
+  created_at        DateTime        @default(now())
+
+  @@unique([provider, provider_event_id])
+  @@index([provider, provider_event_id])
+  @@index([processed])
+  @@map("payment_provider_events")
+}
+
+model AdminAction {
+  id             String   @id @default(uuid()) @db.Uuid
+  admin_id       String   @db.Uuid
+  action_type    String
+  target_user_id String?
+  details        Json
+  ip_address     String
+  created_at     DateTime @default(now())
+  admin          User     @relation("AdminActions", fields: [admin_id], references: [id])
+
+  @@index([admin_id])
+  @@index([target_user_id])
+  @@index([created_at])
+  @@map("admin_actions")
+}
+
+model SenderReputation {
+  id                      String          @id @default(uuid()) @db.Uuid
+  user_id                 String          @db.Uuid
+  sender_email            String
+  sender_domain           String
+  reputation_score        ReputationScore @default(neutral)
+  total_messages          Int             @default(0)
+  spam_count              Int             @default(0)
+  promotion_count         Int             @default(0)
+  user_marked_spam        Int             @default(0)
+  first_seen              DateTime        @default(now())
+  last_seen               DateTime        @default(now())
+  updated_at              DateTime        @updatedAt
+  not_spam_count          Int             @default(0)
+  user_confirmed_not_spam Int             @default(0)
+  user                    User            @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, sender_email])
+  @@index([user_id, reputation_score])
+  @@index([sender_domain])
+  @@map("sender_reputations")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  user_id     String?  @db.Uuid
+  action      String
+  resource    String
+  resource_id String?
+  details     Json?
+  ip_address  String
+  user_agent  String
+  status      String
+  timestamp   DateTime @default(now())
+  user        User?    @relation(fields: [user_id], references: [id])
+
+  @@index([user_id, timestamp])
+  @@index([resource, resource_id])
+  @@map("audit_logs")
+}
+
+model ClassificationSettings {
+  id                             String   @id @default(uuid()) @db.Uuid
+  user_id                        String   @unique @db.Uuid
+  spam_high_value_weight         Int      @default(3)
+  spam_medium_value_weight       Int      @default(1)
+  promo_weight                   Int      @default(2)
+  personalization_weight         Int      @default(2)
+  free_domain_penalty            Int      @default(-1)
+  corporate_domain_bonus         Int      @default(2)
+  suspicious_domain_penalty      Int      @default(-3)
+  short_domain_penalty           Int      @default(-1)
+  spam_min_score                 Int      @default(5)
+  promo_min_score                Int      @default(4)
+  spam_base_confidence           Float    @default(0.60)
+  spam_confidence_multiplier     Float    @default(0.08)
+  promo_base_confidence          Float    @default(0.55)
+  promo_confidence_multiplier    Float    @default(0.08)
+  created_at                     DateTime @default(now())
+  updated_at                     DateTime @updatedAt
+  ai_confidence_threshold        Float    @default(0.55)
+  enable_ai_classification       Boolean  @default(true)
+  classification_prompt          String?
+  moderate_not_spam_max_spam     Int      @default(2)
+  moderate_not_spam_min_score    Int      @default(3)
+  not_spam_base_confidence       Float    @default(0.55)
+  not_spam_confidence_multiplier Float    @default(0.07)
+  not_spam_high_priority_score   Int      @default(6)
+  not_spam_high_value_weight     Int      @default(2)
+  not_spam_max_spam_score        Int      @default(6)
+  not_spam_medium_value_weight   Int      @default(1)
+  not_spam_min_score             Int      @default(4)
+  spam_max_not_spam_score        Int      @default(3)
+  auth_trust_weight              Float    @default(1.0)
+  contact_trust_weight           Float    @default(1.0)
+  enable_contact_history         Boolean  @default(true)
+  enable_email_authentication    Boolean  @default(true)
+  enable_url_analysis            Boolean  @default(true)
+  url_trust_weight               Float    @default(1.0)
+  enable_thread_analysis         Boolean  @default(true)
+  spam_mark_to_block             Int      @default(1)
+  legit_mark_to_trust            Int      @default(3)
+  user                           User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("classification_settings")
+}
+
+model CustomList {
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String   @db.Uuid
+  list_type  String
+  entry_type String
+  value      String
+  pattern    String?
+  reason     String?
+  created_at DateTime @default(now())
+  is_active  Boolean  @default(true)
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, value, entry_type])
+  @@index([user_id, list_type])
+  @@index([list_type, entry_type])
+  @@index([value])
+  @@map("custom_lists")
+}
+
+model PhishingReport {
+  id             String   @id @default(uuid()) @db.Uuid
+  reported_by    String   @db.Uuid
+  sender_email   String
+  subject        String
+  body_hash      String
+  phishing_type  String
+  confidence     Float
+  verified_count Int      @default(1)
+  urls           String[]
+  is_verified    Boolean  @default(false)
+  status         String   @default("pending")
+  reported_at    DateTime @default(now())
+  verified_by    String?  @db.Uuid
+  reporter       User     @relation(fields: [reported_by], references: [id], onDelete: Cascade)
+  verifier       User?    @relation("PhishingReportVerifier", fields: [verified_by], references: [id])
+
+  @@unique([sender_email, subject])
+  @@index([sender_email])
+  @@index([body_hash])
+  @@index([reported_by])
+  @@index([is_verified])
+  @@index([status])
+  @@map("phishing_reports")
+}
+
+model WaitlistSignup {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String
+  email        String   @unique
+  ip_address   String?
+  user_agent   String?
+  referrer     String?
+  utm_source   String?
+  utm_medium   String?
+  utm_campaign String?
+  metadata     Json?
+  subscribed   Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  @@index([email])
+  @@index([created_at])
+  @@map("waitlist_signups")
+}
+
+model Tag {
+  id           String       @id @default(uuid()) @db.Uuid
+  user_id      String       @db.Uuid
+  name         String
+  color        String?
+  created_at   DateTime     @default(now())
+  updated_at   DateTime     @updatedAt
+  message_tags MessageTag[]
+  user         User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, name])
+  @@map("tags")
+}
+
+model MessageTag {
+  id          String   @id @default(uuid()) @db.Uuid
+  message_id  String   @db.Uuid
+  tag_id      String   @db.Uuid
+  assigned_at DateTime @default(now())
+  message     Message  @relation(fields: [message_id], references: [id], onDelete: Cascade)
+  tag         Tag      @relation(fields: [tag_id], references: [id], onDelete: Cascade)
+
+  @@unique([message_id, tag_id])
+  @@map("message_tags")
+}
+
+model SystemSettings {
+  id                             String     @id @default(uuid()) @db.Uuid
+  ai_provider                    AIProvider @default(openai)
+  openai_api_key                 String?
+  mistral_api_key                String?
+  unsubscriber_enabled           Boolean    @default(true)
+  unsubscriber_timeout           Int        @default(30000)
+  created_at                     DateTime   @default(now())
+  updated_at                     DateTime   @updatedAt
+  ml_min_corrections_for_retrain Int        @default(500)
+  ml_retrain_interval_hours      Int        @default(24)
+  ml_min_accuracy_improvement    Float      @default(0.02)
+  feedback_enabled               Boolean    @default(true)
+  enable_pre_filter              Boolean    @default(true)
+  auto_move_suggestion_threshold Int        @default(20)
+  auto_move_suggestion_enabled   Boolean    @default(true)
+  default_scan_frequency_minutes Int        @default(60)
+
+  @@map("system_settings")
+}
+
+model MLModel {
+  id                    String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  version               String              @unique
+  model_type            ModelType           @default(neural_network)
+  status                ModelStatus         @default(training)
+  weights               Json
+  config                Json
+  feature_names         String[]
+  num_features          Int
+  num_classes           Int                 @default(4)
+  training_samples      Int                 @default(0)
+  validation_samples    Int                 @default(0)
+  test_samples          Int                 @default(0)
+  training_duration_ms  Int?
+  trained_by            String?
+  accuracy              Float?
+  precision_legit       Float?
+  precision_spam        Float?
+  precision_promotion   Float?
+  precision_clean       Float?
+  recall_legit          Float?
+  recall_spam           Float?
+  recall_promotion      Float?
+  recall_clean          Float?
+  f1_legit              Float?
+  f1_spam               Float?
+  f1_promotion          Float?
+  f1_clean              Float?
+  loss                  Float?
+  validation_loss       Float?
+  is_calibrated         Boolean?            @default(false)
+  calibration_curve     Json?
+  deployment_count      Int?                @default(0)
+  last_deployed_at      DateTime?           @db.Timestamp(6)
+  deployed_to_users     Int?                @default(0)
+  created_at            DateTime            @default(now()) @db.Timestamp(6)
+  updated_at            DateTime            @default(now()) @updatedAt @db.Timestamp(6)
+  archived_at           DateTime?           @db.Timestamp(6)
+  feature_importance    FeatureImportance[]
+  training_jobs         MLTrainingJob[]     @relation("ResultingModel")
+  competing_deployments ModelDeployment[]   @relation("CompetingModel")
+  deployments           ModelDeployment[]
+  rollback_targets      ModelDeployment[]   @relation("RollbackTarget")
+  metrics               ModelMetrics[]
+
+  @@index([created_at(sort: Desc)], map: "idx_ml_models_created_at")
+  @@index([status], map: "idx_ml_models_status")
+  @@index([version], map: "idx_ml_models_version")
+  @@map("ml_models")
+}
+
+model TrainingExample {
+  id                  String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id             String             @db.Uuid
+  message_id          String?            @db.Uuid
+  features            Json
+  label               String
+  original_verdict    String?
+  confidence          Float?
+  source              String             @default("user_correction")
+  is_correction       Boolean?           @default(false)
+  is_validated        Boolean?           @default(false)
+  validation_score    Float?
+  is_outlier          Boolean?           @default(false)
+  sender_email        String?
+  sender_domain       String?
+  subject_hash        String?
+  used_in_training    Boolean?           @default(false)
+  used_in_models      String[]
+  created_at          DateTime           @default(now()) @db.Timestamp(6)
+  updated_at          DateTime           @default(now()) @updatedAt @db.Timestamp(6)
+  data_quality_issues DataQualityIssue[]
+  message             Message?           @relation(fields: [message_id], references: [id], onUpdate: NoAction)
+  user                User               @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([created_at(sort: Desc)], map: "idx_training_examples_created_at")
+  @@index([is_correction], map: "idx_training_examples_is_correction")
+  @@index([label], map: "idx_training_examples_label")
+  @@index([sender_domain], map: "idx_training_examples_sender_domain")
+  @@index([source], map: "idx_training_examples_source")
+  @@index([user_id], map: "idx_training_examples_user_id")
+  @@map("training_examples")
+}
+
+model ModelMetrics {
+  id                       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  model_id                 String   @db.Uuid
+  user_id                  String?  @db.Uuid
+  period_start             DateTime @db.Timestamp(6)
+  period_end               DateTime @db.Timestamp(6)
+  total_predictions        Int?     @default(0)
+  predictions_lead         Int?     @default(0)
+  predictions_spam         Int?     @default(0)
+  predictions_promotion    Int?     @default(0)
+  predictions_clean        Int?     @default(0)
+  total_feedback           Int?     @default(0)
+  correct_predictions      Int?     @default(0)
+  corrections_lead_to_spam Int?     @default(0)
+  corrections_spam_to_lead Int?     @default(0)
+  corrections_other        Int?     @default(0)
+  accuracy                 Float?
+  precision                Float?
+  recall                   Float?
+  f1_score                 Float?
+  avg_confidence           Float?
+  calibration_error        Float?
+  avg_processing_time_ms   Float?
+  p95_processing_time_ms   Float?
+  cache_hit_rate           Float?
+  ai_api_calls             Int?     @default(0)
+  estimated_cost_usd       Float?
+  created_at               DateTime @default(now()) @db.Timestamp(6)
+  updated_at               DateTime @default(now()) @updatedAt @db.Timestamp(6)
+  model                    MLModel  @relation(fields: [model_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user                     User?    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([created_at(sort: Desc)], map: "idx_model_metrics_created_at")
+  @@index([model_id], map: "idx_model_metrics_model_id")
+  @@index([period_start, period_end], map: "idx_model_metrics_period")
+  @@index([user_id], map: "idx_model_metrics_user_id")
+  @@map("model_metrics")
+}
+
+model FeatureImportance {
+  id                     String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  model_id               String   @db.Uuid
+  feature_name           String
+  permutation_importance Float?
+  shap_value             Float?
+  weight_magnitude       Float?
+  importance_rank        Int?
+  feature_mean           Float?
+  feature_std            Float?
+  feature_min            Float?
+  feature_max            Float?
+  created_at             DateTime @default(now()) @db.Timestamp(6)
+  model                  MLModel  @relation(fields: [model_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([model_id, feature_name], map: "idx_feature_importance_model_feature")
+  @@index([model_id], map: "idx_feature_importance_model_id")
+  @@index([importance_rank], map: "idx_feature_importance_rank")
+  @@map("feature_importance")
+}
+
+model ModelDeployment {
+  id                        String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  model_id                  String             @db.Uuid
+  strategy                  DeploymentStrategy @default(ab_test)
+  status                    DeploymentStatus   @default(active)
+  traffic_percentage        Float              @default(100.0)
+  target_user_ids           String[]
+  is_champion               Boolean?           @default(false)
+  competing_model_id        String?            @db.Uuid
+  min_accuracy_threshold    Float?             @default(0.80)
+  min_predictions_required  Int?               @default(100)
+  auto_promote_if_better_by Float?             @default(0.05)
+  current_accuracy          Float?
+  predictions_count         Int?               @default(0)
+  user_satisfaction_score   Float?
+  rollback_reason           String?
+  rolled_back_at            DateTime?          @db.Timestamp(6)
+  rolled_back_to_model_id   String?            @db.Uuid
+  started_at                DateTime           @default(now()) @db.Timestamp(6)
+  ended_at                  DateTime?          @db.Timestamp(6)
+  created_at                DateTime           @default(now()) @db.Timestamp(6)
+  updated_at                DateTime           @default(now()) @updatedAt @db.Timestamp(6)
+  competing_model           MLModel?           @relation("CompetingModel", fields: [competing_model_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  model                     MLModel            @relation(fields: [model_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  rollback_model            MLModel?           @relation("RollbackTarget", fields: [rolled_back_to_model_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([is_champion], map: "idx_model_deployments_is_champion")
+  @@index([model_id], map: "idx_model_deployments_model_id")
+  @@index([status], map: "idx_model_deployments_status")
+  @@index([strategy], map: "idx_model_deployments_strategy")
+  @@map("model_deployments")
+}
+
+model MLTrainingJob {
+  id                      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  triggered_by            String
+  triggered_by_user_id    String?   @db.Uuid
+  model_type              ModelType
+  config                  Json
+  training_examples_count Int?
+  validation_split        Float?    @default(0.15)
+  test_split              Float?    @default(0.15)
+  status                  JobStatus @default(pending)
+  progress_percentage     Float?    @default(0)
+  current_epoch           Int?
+  total_epochs            Int?
+  resulting_model_id      String?   @db.Uuid
+  final_accuracy          Float?
+  final_loss              Float?
+  error_message           String?
+  error_stack             String?
+  started_at              DateTime? @db.Timestamp(6)
+  completed_at            DateTime? @db.Timestamp(6)
+  duration_ms             Int?
+  created_at              DateTime  @default(now()) @db.Timestamp(6)
+  updated_at              DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+  resulting_model         MLModel?  @relation("ResultingModel", fields: [resulting_model_id], references: [id], onUpdate: NoAction)
+  triggered_by_user       User?     @relation(fields: [triggered_by_user_id], references: [id], onUpdate: NoAction)
+
+  @@index([created_at(sort: Desc)], map: "idx_ml_training_jobs_created_at")
+  @@index([status], map: "idx_ml_training_jobs_status")
+  @@index([triggered_by], map: "idx_ml_training_jobs_triggered_by")
+  @@map("ml_training_jobs")
+}
+
+model DataQualityIssue {
+  id                  String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  training_example_id String          @db.Uuid
+  issue_type          IssueType
+  severity            IssueSeverity
+  description         String
+  auto_resolved       Boolean?        @default(false)
+  resolution_action   String?
+  reviewed_by         String?         @db.Uuid
+  reviewed_at         DateTime?       @db.Timestamp(6)
+  reviewer_decision   String?
+  created_at          DateTime        @default(now()) @db.Timestamp(6)
+  reviewer            User?           @relation(fields: [reviewed_by], references: [id], onUpdate: NoAction)
+  training_example    TrainingExample @relation(fields: [training_example_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([auto_resolved], map: "idx_data_quality_issues_auto_resolved")
+  @@index([severity], map: "idx_data_quality_issues_severity")
+  @@index([training_example_id], map: "idx_data_quality_issues_training_example")
+  @@index([issue_type], map: "idx_data_quality_issues_type")
+  @@map("data_quality_issues")
+}
+
+model NotificationPreferences {
+  id                             String   @id @default(uuid()) @db.Uuid
+  user_id                        String   @unique @db.Uuid
+  lead_found_enabled             Boolean  @default(true)
+  scan_complete_enabled          Boolean  @default(true)
+  usage_warning_enabled          Boolean  @default(true)
+  limit_reached_enabled          Boolean  @default(true)
+  subscription_confirmed_enabled Boolean  @default(true)
+  payment_receipt_enabled        Boolean  @default(true)
+  subscription_cancelled_enabled Boolean  @default(true)
+  welcome_email_enabled          Boolean  @default(true)
+  marketing_emails_enabled       Boolean  @default(false)
+  product_updates_enabled        Boolean  @default(true)
+  weekly_recap_enabled           Boolean  @default(true)
+  email_enabled                  Boolean  @default(true)
+  slack_enabled                  Boolean  @default(false)
+  telegram_enabled               Boolean  @default(false)
+  created_at                     DateTime @default(now())
+  updated_at                     DateTime @updatedAt
+  whatsapp_enabled               Boolean  @default(false)
+  user                           User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@map("notification_preferences")
+}
+
+model Feedback {
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String   @db.Uuid
+  rating     Int
+  comment    String?
+  page_url   String?
+  user_agent String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([created_at])
+  @@index([rating])
+  @@map("feedback")
+}
+
+model ApiQuotaLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  provider   String
+  user_id    String?  @db.Uuid
+  quota_used Int
+  endpoint   String
+  timestamp  DateTime @default(now())
+
+  @@index([provider])
+  @@index([user_id])
+  @@index([timestamp])
+  @@index([provider, timestamp])
+  @@map("api_quota_logs")
+}
+
+model UserContext {
+  id                         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id                    String    @unique @db.Uuid
+  user_role                  String?
+  user_role_custom           String?
+  primary_goal               String?
+  primary_goal_custom        String?
+  target_audience            String?
+  target_audience_custom     String?
+  whitelist_domains          String[]
+  deal_breakers              String[]
+  deal_breakers_custom       String?
+  created_at                 DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at                 DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
+  spam_handling              String?   @default("review_first")
+  auto_move_prompt_dismissed Boolean   @default(false)
+  auto_move_prompt_remind_at DateTime? @db.Timestamptz(6)
+  auto_move_email_sent_at    DateTime? @db.Timestamptz(6)
+  priority_emails            String[]  @default([])
+  priority_emails_custom     String?
+  priority_senders           String[]  @default([])
+  priority_senders_custom    String?
+  common_distractions        String[]  @default([])
+  common_distractions_custom String?
+  timezone                   String?   @default("UTC") @db.VarChar(50)
+  user                       User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([common_distractions], map: "idx_user_contexts_common_distractions", type: Gin)
+  @@index([priority_emails], map: "idx_user_contexts_priority_emails", type: Gin)
+  @@index([priority_senders], map: "idx_user_contexts_priority_senders", type: Gin)
+  @@map("user_contexts")
+}
+
+model UserPreferences {
+  id                 String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id            String      @unique @db.Uuid
+  theme              String?     @default("light")
+  dashboard_view     String?     @default("grid")
+  message_sort_order String?     @default("latest")
+  // Per-user AI provider override. null = use system default (SystemSettings.ai_provider)
+  ai_provider        AIProvider?
+  // Per-user model name override. null = use provider default (e.g. gpt-4o-mini for openai)
+  ai_model           String?
+  created_at         DateTime?   @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime?   @default(now()) @updatedAt @db.Timestamptz(6)
+  user               User        @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("user_preferences")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model personalization_profiles {
+  id                            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                       String    @unique @db.Uuid
+  preferred_communication_style Json?     @default("{}")
+  typical_email_length          String?   @default("medium") @db.VarChar(20)
+  response_time_preference      String?   @default("standard") @db.VarChar(20)
+  trusted_sender_patterns       Json?     @default("[]")
+  frequent_contacts             Json?     @default("[]")
+  blocked_patterns              Json?     @default("[]")
+  active_hours                  Json?     @default("{}")
+  peak_engagement_hours         Int[]     @default([])
+  timezone                      String?   @default("UTC") @db.VarChar(50)
+  preferred_topics              Json?     @default("[]")
+  avoided_topics                Json?     @default("[]")
+  keyword_weights               Json?     @default("{}")
+  lead_indicators               Json?     @default("{}")
+  spam_indicators               Json?     @default("{}")
+  promotion_tolerance           Float?    @default(0.5)
+  avg_read_time_seconds         Float?    @default(0)
+  reply_rate                    Float?    @default(0)
+  forward_rate                  Float?    @default(0)
+  archive_rate                  Float?    @default(0)
+  delete_rate                   Float?    @default(0)
+  training_examples_contributed Int?      @default(0)
+  last_model_update             DateTime? @db.Timestamptz(6)
+  model_accuracy_for_user       Float?
+  is_active                     Boolean?  @default(true)
+  auto_learn_enabled            Boolean?  @default(true)
+  created_at                    DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at                    DateTime? @default(now()) @db.Timestamptz(6)
+  users                         User      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([is_active], map: "idx_personalization_profiles_is_active")
+  @@index([keyword_weights], map: "idx_personalization_profiles_keyword_weights", type: Gin)
+  @@index([trusted_sender_patterns], map: "idx_personalization_profiles_trusted_senders", type: Gin)
+  @@index([updated_at], map: "idx_personalization_profiles_updated_at")
+  @@index([user_id], map: "idx_personalization_profiles_user_id")
+}
+
+model email_templates {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  template_key     String    @unique @db.VarChar(255)
+  name             String    @db.VarChar(255)
+  description      String?
+  subject_template String
+  html_template    String
+  text_template    String
+  variables        Json      @default("[]")
+  is_active        Boolean   @default(false)
+  created_at       DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@index([is_active], map: "idx_email_templates_active")
+  @@index([template_key], map: "idx_email_templates_key")
+}
+
+model PhoneVerification {
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String   @db.Uuid
+  phone      String
+  code_hash  String
+  attempts   Int      @default(0)
+  expires_at DateTime
+  verified   Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  @@unique([user_id, phone])
+  @@index([user_id])
+  @@index([expires_at])
+  @@map("phone_verifications")
+}
+
+enum Role {
+  owner
+  admin
+  member
+  readonly
+}
+
+enum EmailProvider {
+  gmail
+  outlook
+  imap
+}
+
+enum MailboxStatus {
+  active
+  paused
+  disconnected
+  error
+}
+
+enum MessageVerdict {
+  lead
+  spam
+  promotion
+  clean
+  legit
+}
+
+enum MessagePriority {
+  high
+  medium
+  low
+}
+
+enum AlertType {
+  new_lead
+  scan_complete
+  scan_error
+  mailbox_disconnected
+  new_legit
+}
+
+enum AlertChannel {
+  email
+  sms
+  webhook
+}
+
+enum AlertStatus {
+  pending
+  sent
+  failed
+}
+
+enum SubscriptionPlan {
+  free
+  starter
+  privacy
+  growth
+  business
+}
+
+enum SubscriptionStatus {
+  active
+  cancelled
+  past_due
+  trialing
+}
+
+enum PaymentProvider {
+  stripe
+  lemonsqueezy
+}
+
+enum ReputationScore {
+  trusted
+  good
+  neutral
+  suspicious
+  blocked
+}
+
+enum AIProvider {
+  openai
+  mistral
+  venice
+  none
+}
+
+enum ModelType {
+  linear
+  neural_network
+  gradient_boosting
+  ensemble
+}
+
+enum ModelStatus {
+  training
+  validating
+  deployed
+  archived
+  failed
+}
+
+enum DeploymentStrategy {
+  full
+  canary
+  ab_test
+  champion_challenger
+}
+
+enum DeploymentStatus {
+  active
+  paused
+  completed
+  rolled_back
+}
+
+enum JobStatus {
+  pending
+  running
+  completed
+  failed
+  cancelled
+}
+
+enum IssueType {
+  duplicate
+  outlier
+  label_noise
+  missing_features
+  inconsistent_label
+}
+
+enum IssueSeverity {
+  low
+  medium
+  high
+  critical
+}
