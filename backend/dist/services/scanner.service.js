@@ -285,7 +285,12 @@ async function scanMailbox(mailboxId, userId, options = {}) {
         logger_1.logger.debug(`[Scanner] 📊 Scan summary: ${scannedCount} total messages to process`);
         if (messages.length === 0) {
             // Even with no new messages, reconcile to catch deletions/moves made in the email client
-            await reconcileRemovedMessages(mailboxId, userId, mailbox.provider, mailbox.monitored_folders || ['spam']);
+            try {
+                await reconcileRemovedMessages(mailboxId, userId, mailbox.provider, mailbox.monitored_folders || ['spam']);
+            }
+            catch (reconcileError) {
+                logger_1.logger.error(`[Scanner] ⚠️ Reconciliation failed (non-fatal) — check DB migration: removed_from_server_at column may be missing. Error: ${reconcileError.message}`);
+            }
             await (0, mailbox_service_1.updateLastSync)(mailboxId);
             return {
                 mailboxId,
@@ -565,11 +570,19 @@ async function scanMailbox(mailboxId, userId, options = {}) {
         logger_1.logger.debug(`  - Created (new): ${createdCount}`);
         logger_1.logger.debug(`  - Errors: ${errors.length}`);
         logger_1.logger.debug(`  - Expected DB total: ${26 + createdCount} (was 26)\n`);
-        // SYNC: Mark messages removed from the server so the UI mirrors the user's folder exactly
-        await reconcileRemovedMessages(mailboxId, userId, mailbox.provider, mailbox.monitored_folders || ['spam']);
+        // SYNC: Mark messages removed from the server so the UI mirrors the user's folder exactly.
+        // Wrapped in try/catch so a DB migration gap or provider error never crashes the scan.
+        let removedCount = 0;
+        try {
+            removedCount = await reconcileRemovedMessages(mailboxId, userId, mailbox.provider, mailbox.monitored_folders || ['spam']);
+        }
+        catch (reconcileError) {
+            logger_1.logger.error(`[Scanner] ⚠️ Reconciliation failed (non-fatal) — check DB migration: removed_from_server_at column may be missing. Error: ${reconcileError.message}`);
+        }
+        logger_1.logger.debug(`[Scanner] 🔄 Reconciliation: ${removedCount} messages marked removed`);
         // Get total count for logging
         const totalDbMessages = await prisma_1.prisma.message.count({
-            where: { mailbox_id: mailboxId, removed_from_server_at: null }
+            where: { mailbox_id: mailboxId }
         });
         // Simply update the last scan timestamp
         await (0, mailbox_service_1.updateLastSync)(mailboxId);
