@@ -48,6 +48,7 @@ exports.cleanupOldMessages = cleanupOldMessages;
 const prisma_1 = require("../lib/prisma");
 const gmail_service_1 = require("./gmail.service");
 const outlook_service_1 = require("./outlook.service");
+const imap_service_1 = require("./imap.service");
 const classifier_service_1 = require("./classifier.service");
 const mailbox_service_1 = require("./mailbox.service");
 const email_service_1 = require("./email.service");
@@ -94,9 +95,14 @@ async function reconcileRemovedMessages(mailboxId, userId, provider, monitoredFo
         if (provider === 'gmail') {
             liveIds = await (0, gmail_service_1.listAllMessageIds)(mailboxId, userId, monitoredFolders);
         }
+        else if (provider === 'outlook') {
+            liveIds = await (0, outlook_service_1.listAllMessageIds)(mailboxId, userId, monitoredFolders);
+        }
+        else if (provider === 'imap') {
+            liveIds = await (0, imap_service_1.listAllMessageIds)(mailboxId, userId, monitoredFolders);
+        }
         else {
-            // Outlook support: skip reconciliation silently until implemented
-            logger_1.logger.warn(`[Reconcile] Provider "${provider}" not yet supported, skipping`);
+            logger_1.logger.warn(`[Reconcile] Provider "${provider}" not supported for reconciliation, skipping`);
             return 0;
         }
     }
@@ -186,6 +192,16 @@ async function scanMailbox(mailboxId, userId, options = {}) {
                     logger_1.logger.debug(`[Scanner] ✅ Fetched ${messages.length} messages from Outlook`);
                     parsedEmails = outlookMessages.map(msg => ({ raw: msg, parsed: (0, outlook_service_1.parseOutlookMessage)(msg) }));
                 }
+                else if (mailbox.provider === 'imap') {
+                    logger_1.logger.debug(`[Scanner] Fetching messages from IMAP spam folder...`);
+                    const imapMessages = await (0, imap_service_1.fetchSpamMessages)(mailboxId, userId, {
+                        ...options,
+                        monitoredFolders,
+                    });
+                    messages = imapMessages;
+                    logger_1.logger.debug(`[Scanner] ✅ Fetched ${messages.length} messages from IMAP`);
+                    parsedEmails = imapMessages.map(msg => ({ raw: msg, parsed: (0, imap_service_1.parseImapMessage)(msg) }));
+                }
                 else {
                     throw new Error(`Unsupported provider: ${mailbox.provider}`);
                 }
@@ -268,6 +284,8 @@ async function scanMailbox(mailboxId, userId, options = {}) {
         scannedCount = messages.length;
         logger_1.logger.debug(`[Scanner] 📊 Scan summary: ${scannedCount} total messages to process`);
         if (messages.length === 0) {
+            // Even with no new messages, reconcile to catch deletions/moves made in the email client
+            await reconcileRemovedMessages(mailboxId, userId, mailbox.provider, mailbox.monitored_folders || ['spam']);
             await (0, mailbox_service_1.updateLastSync)(mailboxId);
             return {
                 mailboxId,
@@ -616,8 +634,10 @@ async function scanAllUserMailboxes(userId, options = {}) {
     logger_1.logger.debug(`[Scanner] Scanning ${mailboxes.length} mailboxes for user ${userId}`);
     const results = await Promise.all(mailboxes.map((mailbox) => scanMailbox(mailbox.id, userId, {
         maxResults: options.maxResults || 100,
-        // Only scan messages from last 7 days on first scan
-        afterDate: mailbox.last_scan_at || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+        // First scan: no afterDate so we fetch the full folder state for exact parity.
+        // Subsequent scans: use last_scan_at so we only fetch new arrivals;
+        // reconciliation handles removals independently on every scan.
+        afterDate: mailbox.last_scan_at || undefined,
     })));
     return results;
 }

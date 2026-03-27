@@ -11,6 +11,7 @@ exports.rescueMessage = rescueMessage;
 exports.markAsSpam = markAsSpam;
 exports.deleteMessage = deleteMessage;
 exports.getSpamCount = getSpamCount;
+exports.listAllMessageIds = listAllMessageIds;
 const microsoft_graph_client_1 = require("@microsoft/microsoft-graph-client");
 require("isomorphic-fetch");
 const mailbox_service_1 = require("./mailbox.service");
@@ -414,6 +415,35 @@ async function deleteMessage(mailboxId, userId, messageId) {
         }
         throw new Error(`Failed to delete message: ${error.message}`);
     }
+}
+/**
+ * List all message IDs currently in monitored folders — no date filter, IDs only.
+ * Used by reconciliation to detect messages removed from the server.
+ * Follows @odata.nextLink pages until exhausted.
+ */
+async function listAllMessageIds(mailboxId, userId, monitoredFolders) {
+    const client = await createOutlookClient(mailboxId, userId);
+    const folderIds = getFolderIds(monitoredFolders || ['spam']);
+    const allIds = new Set();
+    for (const folderId of folderIds) {
+        try {
+            // Start with the first page — select only id to minimise data transfer
+            let nextLink = `/me/mailFolders/${folderId}/messages?$select=id&$top=500`;
+            while (nextLink) {
+                const response = await client.api(nextLink).get();
+                for (const msg of (response.value || [])) {
+                    if (msg.id) allIds.add(msg.id);
+                }
+                // @odata.nextLink is the full URL for the next page; undefined when done
+                nextLink = response['@odata.nextLink'] || null;
+            }
+        }
+        catch (folderError) {
+            console.warn(`[Outlook] listAllMessageIds: error reading folder ${folderId}:`, folderError.message);
+            // Continue with remaining folders rather than aborting the whole reconciliation
+        }
+    }
+    return allIds;
 }
 /**
  * Get unread count in junk folder
