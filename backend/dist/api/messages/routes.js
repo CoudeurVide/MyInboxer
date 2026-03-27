@@ -356,8 +356,8 @@ const messageRoutes = async (app) => {
                 return reply.status(401).send({ success: false, error: 'Invalid user identity' });
             }
             const { messageIds, mailboxId, all } = request.body || {};
-            // Build query to fetch messages to reclassify
-            const where = { mailbox: { user_id: userId } };
+            // Build query to fetch messages to reclassify — exclude removed messages
+            const where = { mailbox: { user_id: userId }, removed_from_server_at: null };
             if (messageIds && messageIds.length > 0) {
                 // Reclassify specific messages (max 50 at a time)
                 const validIds = messageIds.slice(0, 50).filter(id => typeof id === 'string' && id.length > 0);
@@ -633,6 +633,7 @@ const messageRoutes = async (app) => {
                 }
                 // Exclude records whose content was wiped by the retention job
                 andConditions.push({ NOT: { subject: '[DELETED]' } });
+                andConditions.push({ removed_from_server_at: null });
                 // Build final where clause
                 const where = andConditions.length > 1 ? { AND: andConditions } : andConditions[0];
                 // Fetch messages and total count in parallel with a SINGLE query
